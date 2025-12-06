@@ -1,15 +1,11 @@
 spring:
-  application:
-    name: admin-backend
+  datasource:
+    url: jdbc:mysql://db:3306/admin_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
-  profiles:
-    active: local  # ??? local
+jwt:
+  secret: ${JWT_SECRET}
 
-server:
-  port: 8080
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+discord:
+  webhook-url: ${DISCORD_WEBHOOK_URL:}
