@@ -1,0 +1,34 @@
+name: Notify Discord on PR
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send message to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          repo="${{ github.repository }}"
+          pr_number="${{ github.event.pull_request.number }}"
+          pr_title="${{ github.event.pull_request.title }}"
+          pr_url="${{ github.event.pull_request.html_url }}"
+          author="${{ github.event.pull_request.user.login }}"
+
+          content="🔔 새로운 PR 알림\n"
+          content+="📦 Repository: ${repo}\n"
+          content+="🔢 PR: #${pr_number}\n"
+          content+="✏️ 제목: ${pr_title}\n"
+          content+="👤 작성자: ${author}\n"
+          content+="🔗 링크: ${pr_url}"
+
+          payload=$(printf '{"content": "%s"}' "$content")
+
+          curl -sS -H "Content-Type: application/json" \
+               -X POST \
+               -d "$payload" \
+               "$DISCORD_WEBHOOK_URL"
