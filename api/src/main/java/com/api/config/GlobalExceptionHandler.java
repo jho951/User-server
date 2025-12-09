@@ -1,4 +1,4 @@
-package com.api.handler;
+package com.api.config;
 
 import com.core.dto.BaseResponse;
 import com.core.exception.BusinessException;

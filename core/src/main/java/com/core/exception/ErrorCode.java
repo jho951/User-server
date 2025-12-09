@@ -20,6 +20,8 @@ public enum ErrorCode {
 	EMAIL_ALREADY_EXISTS("U400",400,  "이미 사용 중인 이메일입니다."),
 	INVALID_LOGIN( "U401",400, "이메일 또는 비밀번호가 올바르지 않습니다.");
 
+
+
 	private final String code;
 	private final int status;
 	private final String message;
