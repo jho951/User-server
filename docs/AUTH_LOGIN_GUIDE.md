@@ -2,6 +2,8 @@
 
 이 프로젝트는 `io.github.jho951:auth-config` 모듈로 로그인 기능을 제공합니다.
 
+사전 준비(패키지 인증) 이슈는 `docs/GITHUB_PACKAGES_TROUBLESHOOTING.md`를 참고하세요.
+
 ## 1) 현재 구조
 
 - 로그인 API는 프로젝트 코드가 아니라 `auth-config` 모듈이 자동 등록합니다.
