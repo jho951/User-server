@@ -13,8 +13,14 @@ import com.core.constant.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 
+/**
+ * 사용자 API 응답 DTO를 모아둔 클래스입니다.
+ */
 public class UserResponse {
 
+	/**
+	 * 사용자 소셜 계정 응답 DTO입니다.
+	 */
 	@Getter
 	@Builder
 	public static class UserSocialResponse {
@@ -22,6 +28,12 @@ public class UserResponse {
 		private UserSocialType socialType;
 		private String providerId;
 
+		/**
+		 * 엔티티를 응답 DTO로 변환합니다.
+		 *
+		 * @param userSocial 사용자 소셜 계정 엔티티
+		 * @return 소셜 계정 응답 DTO
+		 */
 		public static UserSocialResponse from(UserSocial userSocial) {
 			return UserSocialResponse.builder()
 				.id(userSocial.getId())
@@ -31,6 +43,9 @@ public class UserResponse {
 		}
 	}
 
+	/**
+	 * 사용자 상세 응답 DTO입니다.
+	 */
 	@Getter
 	@Builder
 	public static class UserDetailResponse {
@@ -42,6 +57,12 @@ public class UserResponse {
 		private LocalDateTime updatedAt;
 		private List<UserSocialResponse> userSocialList;
 
+		/**
+		 * 엔티티를 상세 응답 DTO로 변환합니다.
+		 *
+		 * @param user 사용자 엔티티
+		 * @return 사용자 상세 응답 DTO
+		 */
 		public static UserDetailResponse from(User user) {
 			return UserDetailResponse.builder()
 				.id(user.getId())
@@ -57,11 +78,20 @@ public class UserResponse {
 		}
 	}
 
+	/**
+	 * 사용자 생성 응답 DTO입니다.
+	 */
 	@Getter
 	@Builder
 	public static class UserCreateResponse {
 		private UserDetailResponse user;
 
+		/**
+		 * 엔티티를 생성 응답 DTO로 변환합니다.
+		 *
+		 * @param user 사용자 엔티티
+		 * @return 사용자 생성 응답 DTO
+		 */
 		public static UserCreateResponse from(User user) {
 			return UserCreateResponse.builder()
 				.user(UserDetailResponse.from(user))

@@ -12,9 +12,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.core.constant.UserRole;
 
+/**
+ * JWT claim을 Spring Security 권한 객체로 변환합니다.
+ */
 public class JwtAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
 	@Override
+	/**
+	 * role, roles, scope, scp claim을 권한 목록으로 변환합니다.
+	 *
+	 * @param jwt JWT 토큰
+	 * @return 권한 목록
+	 */
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 

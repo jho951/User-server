@@ -21,6 +21,9 @@ import com.api.user.service.UserService;
 
 import jakarta.validation.Valid;
 
+/**
+ * 공개 사용자 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/users")
 @ConditionalOnProperty(prefix = "features.public-user-api", name = "enabled", havingValue = "true")
@@ -32,6 +35,12 @@ public class UserController {
 		this.userService = userService;
 	}
 
+	/**
+	 * 인증된 사용자의 내 정보를 조회합니다.
+	 *
+	 * @param jwt 인증된 JWT
+	 * @return 내 사용자 정보 응답
+	 */
 	@PreAuthorize("@jwtAccessPolicy.hasActiveStatus(authentication)")
 	@GetMapping("/me")
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> me(@AuthenticationPrincipal Jwt jwt) {
@@ -42,6 +51,12 @@ public class UserController {
 			.body(GlobalResponse.ok(successCode, userService.get(userId)));
 	}
 
+	/**
+	 * 공개 회원가입을 처리합니다.
+	 *
+	 * @param request 회원가입 요청
+	 * @return 생성된 사용자 응답
+	 */
 	@PostMapping("/signup")
 	public ResponseEntity<GlobalResponse<UserResponse.UserCreateResponse>> signup(
 		@Valid @RequestBody UserRequest.UserSignupRequest request

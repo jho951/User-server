@@ -32,12 +32,25 @@ import com.api.common.dto.GlobalResponse;
 import com.core.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * user-service의 Spring Security 설정을 구성합니다.
+ */
 @Configuration
 @EnableMethodSecurity
 @EnableConfigurationProperties(JwtSecurityProperties.class)
 public class SecurityConfig {
 
 	@Bean
+	/**
+	 * 보안 필터 체인을 구성합니다.
+	 *
+	 * @param http HttpSecurity 설정 객체
+	 * @param jwtAuthenticationConverter JWT 인증 변환기
+	 * @param jwtAccessPolicy JWT 접근 정책
+	 * @param objectMapper JSON 직렬화 객체
+	 * @return 보안 필터 체인
+	 * @throws Exception 보안 구성 중 예외
+	 */
 	public SecurityFilterChain securityFilterChain(
 		HttpSecurity http,
 		JwtAuthenticationConverter jwtAuthenticationConverter,
@@ -73,6 +86,12 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	/**
+	 * JWT 디코더를 생성합니다.
+	 *
+	 * @param properties JWT 보안 설정
+	 * @return JWT 디코더
+	 */
 	public JwtDecoder jwtDecoder(JwtSecurityProperties properties) {
 		SecretKey secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
@@ -100,6 +119,11 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	/**
+	 * JWT를 Spring Security 인증 객체로 변환하는 컨버터를 생성합니다.
+	 *
+	 * @return JWT 인증 컨버터
+	 */
 	public JwtAuthenticationConverter jwtAuthenticationConverter() {
 		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 		converter.setJwtGrantedAuthoritiesConverter(new JwtAuthorityConverter());
@@ -107,6 +131,15 @@ public class SecurityConfig {
 		return converter;
 	}
 
+	/**
+	 * 보안 예외 응답을 공통 JSON 형식으로 기록합니다.
+	 *
+	 * @param response 서블릿 응답 객체
+	 * @param objectMapper JSON 직렬화 객체
+	 * @param status HTTP 상태 코드
+	 * @param body 응답 바디
+	 * @throws IOException 응답 기록 중 예외
+	 */
 	private static void writeError(
 		jakarta.servlet.http.HttpServletResponse response,
 		ObjectMapper objectMapper,

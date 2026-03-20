@@ -17,6 +17,9 @@ import com.core.constant.UserRole;
 import com.core.exception.BusinessException;
 import com.core.exception.ErrorCode;
 
+/**
+ * 사용자 유즈케이스 구현체입니다.
+ */
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
@@ -30,12 +33,24 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	/**
+	 * 공개 회원가입을 처리합니다.
+	 *
+	 * @param request 회원가입 요청
+	 * @return 생성된 사용자 응답
+	 */
 	public UserResponse.UserCreateResponse signup(UserRequest.UserSignupRequest request) {
 		User savedUser = saveUser(request.getEmail(), UserRole.USER, UserStatus.ACTIVE);
 		return UserResponse.UserCreateResponse.from(savedUser);
 	}
 
 	@Override
+	/**
+	 * 내부 API를 통해 사용자를 생성합니다.
+	 *
+	 * @param request 사용자 생성 요청
+	 * @return 생성된 사용자 상세 응답
+	 */
 	public UserResponse.UserDetailResponse create(UserRequest.UserCreateRequest request) {
 		User savedUser = saveUser(
 			request.getEmail(),
@@ -46,6 +61,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	/**
+	 * 사용자 소셜 계정 연동 정보를 생성합니다.
+	 *
+	 * @param request 소셜 계정 생성 요청
+	 * @return 생성된 소셜 계정 응답
+	 */
 	public UserResponse.UserSocialResponse createSocial(UserRequest.UserSocialCreateRequest request) {
 		if (userSocialRepository.existsBySocialTypeAndProviderId(request.getSocialType(), request.getProviderId())) {
 			throw new BusinessException(ErrorCode.SOCIAL_ACCOUNT_ALREADY_EXISTS);
@@ -65,6 +86,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	/**
+	 * 사용자 상태를 변경합니다.
+	 *
+	 * @param userId 사용자 식별자
+	 * @param request 상태 변경 요청
+	 * @return 변경된 사용자 상세 응답
+	 */
 	public UserResponse.UserDetailResponse updateStatus(UUID userId, UserRequest.UserStatusUpdateRequest request) {
 		User user = getUserEntity(userId);
 		user.changeStatus(request.getStatus());
@@ -73,12 +101,24 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
+	/**
+	 * 사용자 식별자로 사용자를 조회합니다.
+	 *
+	 * @param userId 사용자 식별자
+	 * @return 사용자 상세 응답
+	 */
 	public UserResponse.UserDetailResponse get(UUID userId) {
 		return UserResponse.UserDetailResponse.from(getUserEntityWithSocials(userId));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
+	/**
+	 * 이메일로 사용자를 조회합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @return 사용자 상세 응답
+	 */
 	public UserResponse.UserDetailResponse getByEmail(String email) {
 		User user = userRepository.findWithUserSocialListByEmail(email)
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -87,6 +127,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
+	/**
+	 * 소셜 제공자 정보로 사용자를 조회합니다.
+	 *
+	 * @param socialType 소셜 제공자 타입
+	 * @param providerId 제공자 사용자 식별값
+	 * @return 사용자 상세 응답
+	 */
 	public UserResponse.UserDetailResponse getBySocial(UserSocialType socialType, String providerId) {
 		UserSocial userSocial = userSocialRepository.findBySocialTypeAndProviderId(socialType, providerId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));

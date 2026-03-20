@@ -35,7 +35,18 @@ public enum UserRole {
 		this.authority = authority;
 	}
 
+	/**
+	 * 역할 설명을 반환합니다.
+	 *
+	 * @return 역할 설명
+	 */
 	public String description() {return description;}
+
+	/**
+	 * Spring Security authority 문자열을 반환합니다.
+	 *
+	 * @return authority 문자열
+	 */
 	public String authority() {return authority;}
 
 	/**

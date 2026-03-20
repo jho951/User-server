@@ -1,6 +1,8 @@
 package com.core.exception;
 
-/** 서비스 전반에서 사용하는 공통 비즈니스 예외 */
+/**
+ * 서비스 전반에서 사용하는 공통 비즈니스 예외입니다.
+ */
 public class BusinessException extends RuntimeException {
 
 	private final ErrorCode errorCode;
@@ -29,7 +31,19 @@ public class BusinessException extends RuntimeException {
 	public ErrorCode getErrorCode() {
 		return errorCode;
 	}
+
+	/**
+	 * HTTP 상태 코드를 반환합니다.
+	 *
+	 * @return HTTP 상태 코드
+	 */
 	public int getHttpStatus() {return errorCode.getHttpStatus();}
+
+	/**
+	 * 비즈니스 에러 코드를 반환합니다.
+	 *
+	 * @return 비즈니스 에러 코드
+	 */
 	public int getCode() {
 		return errorCode.getCode();
 	}

@@ -63,9 +63,20 @@ public class User extends BaseEntity {
 		this.status = status;
 	}
 
+	/**
+	 * 사용자 상태를 변경합니다.
+	 *
+	 * @param status 변경할 사용자 상태
+	 */
 	public void changeStatus(UserStatus status) {
 		this.status = status;
 	}
+
+	/**
+	 * 사용자 소셜 계정 목록에 연동 정보를 추가합니다.
+	 *
+	 * @param userSocial 추가할 소셜 계정 엔티티
+	 */
 	public void addUserSocial(UserSocial userSocial) {
 		userSocialList.add(userSocial);
 	}

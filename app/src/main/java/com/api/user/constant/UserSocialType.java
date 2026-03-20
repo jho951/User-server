@@ -1,6 +1,8 @@
 package com.api.user.constant;
 
-/** 소셜 로그인 제공자 */
+/**
+ * 소셜 로그인 제공자 타입을 정의합니다.
+ */
 public enum UserSocialType {
     /** 일반 */
 	DEFAULT("DEF", "일반 로그인"),
@@ -25,10 +27,26 @@ public enum UserSocialType {
 		this.description = description;
 	}
 
+	/**
+	 * DB 저장 코드를 반환합니다.
+	 *
+	 * @return 소셜 제공자 코드
+	 */
 	public String getCode() { return code; }
+
+	/**
+	 * 소셜 제공자 설명을 반환합니다.
+	 *
+	 * @return 소셜 제공자 설명
+	 */
 	public String getDescription() { return description; }
 
-	/** DB에서 읽어온 짧은 코드를 Enum 객체로 변환하는 유틸리티 메서드 */
+	/**
+	 * DB에서 읽은 코드를 enum으로 변환합니다.
+	 *
+	 * @param dbData DB 저장 코드
+	 * @return 매핑된 소셜 제공자 타입
+	 */
 	public static UserSocialType fromCode(String dbData) {
 		if (dbData == null) return null;
 

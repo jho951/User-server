@@ -29,6 +29,12 @@ public class GlobalExceptionHandler {
 			.body(GlobalResponse.fail(errorCode, e.getMessage()));
 	}
 
+	/**
+	 * 검증 예외를 처리합니다.
+	 *
+	 * @param e 검증 예외
+	 * @return 에러 응답
+	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<GlobalResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 		ErrorCode errorCode = ErrorCode.BAD_REQUEST;
