@@ -1,6 +1,6 @@
 rootProject.name = 'User-server'
-include 'core'
-include 'api'
+include 'domain'
+include 'app'
 
 dependencyResolutionManagement {
     repositories {
