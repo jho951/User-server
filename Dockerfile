@@ -4,15 +4,15 @@ WORKDIR /workspace
 COPY gradlew settings.gradle build.gradle ./
 COPY gradle ./gradle
 
-COPY core ./core
-COPY api ./api
+COPY domain ./domain
+COPY app ./app
 
-RUN chmod +x ./gradlew \ && ./gradlew clean :api:bootJar -x test --no-daemon
+RUN chmod +x ./gradlew \ && ./gradlew clean :app:bootJar -x test --no-daemon
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-COPY --from=builder /workspace/api/build/libs/*.jar app.jar
+COPY --from=builder /workspace/app/build/libs/*.jar app.jar
 
 EXPOSE 8082
 ENV TZ=Asia/Seoul

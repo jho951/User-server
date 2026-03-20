@@ -5,8 +5,8 @@
 
 ## Modules
 
-- `api`: Spring Boot 실행 모듈, 일반 회원/내부 연동 API
-- `core`: 공통 도메인/상수/예외/DTO
+- `app`: Spring Boot 실행 모듈, 일반 회원/내부 연동 API
+- `domain`: 공통 도메인/상수/예외/DTO
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ export USER_SERVICE_BASE_URL=http://localhost:8082
 2. 빌드/실행
 
 ```bash
-./gradlew clean :api:bootRun
+./gradlew clean :app:bootRun
 ```
 
 기본 프로필은 `dev`이며, 서버는 `http://localhost:8082`으로 실행됩니다.
