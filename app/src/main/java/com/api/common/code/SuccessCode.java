@@ -1,20 +1,29 @@
 package com.api.common.code;
 
 public enum SuccessCode {
-    /** 조회 성공 (GET) */
-    GET_SUCCESS(200, 200, "조회 요청 성공"),
+    /** 내 정보 조회 성공 */
+    USER_ME_GET_SUCCESS(200, 3000, "내 사용자 정보 조회 성공"),
 
-    /** 생성 성공 (POST) */
-    CREATE_SUCCESS(201, 201, "리소스 생성 성공"),
+    /** 회원가입 성공 */
+    USER_SIGNUP_SUCCESS(201, 3001, "회원가입 성공"),
 
-    /**  수정 성공 (PUT, PATCH) */
-    UPDATE_SUCCESS(200, 200, "리소스 수정 성공"),
+    /** 내부 사용자 생성 성공 */
+    USER_CREATE_SUCCESS(201, 3002, "사용자 생성 성공"),
 
-    /**  삭제 성공 (DELETE) */
-    DELETE_SUCCESS(200, 200, "리소스 삭제 성공"),
+    /** 사용자 상태 변경 성공 */
+    USER_STATUS_UPDATE_SUCCESS(200, 3003, "사용자 상태 변경 성공"),
 
-    /**  비동기 요청 접수 */
-    PROCESS_ACCEPTED(202, 202, "요청이 접수 성공");
+    /** 소셜 계정 연동 생성 성공 */
+    USER_SOCIAL_CREATE_SUCCESS(201, 3004, "사용자 소셜 계정 연동 성공"),
+
+    /** 사용자 단건 조회 성공 */
+    USER_GET_SUCCESS(200, 3005, "사용자 조회 성공"),
+
+    /** 이메일 기준 사용자 조회 성공 */
+    USER_GET_BY_EMAIL_SUCCESS(200, 3006, "이메일 기준 사용자 조회 성공"),
+
+    /** 소셜 계정 기준 사용자 조회 성공 */
+    USER_GET_BY_SOCIAL_SUCCESS(200, 3007, "소셜 계정 기준 사용자 조회 성공");
 
     private final int httpStatus;
     private final int code;
@@ -23,9 +32,9 @@ public enum SuccessCode {
     /**
      * 생성자
      *
-     * @param httpStatus 상태
-     * @param code 상태 코드
-     * @param message 추가 메시지
+     * @param httpStatus HTTP 상태 코드
+     * @param code 비즈니스 성공 코드
+     * @param message 성공 메시지
      */
     SuccessCode(int httpStatus, int code, String message) {
         this.httpStatus = httpStatus;

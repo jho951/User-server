@@ -36,7 +36,7 @@ public class UserController {
 	@GetMapping("/me")
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> me(@AuthenticationPrincipal Jwt jwt) {
 		UUID userId = UUID.fromString(jwt.getSubject());
-		SuccessCode successCode = SuccessCode.GET_SUCCESS;
+		SuccessCode successCode = SuccessCode.USER_ME_GET_SUCCESS;
 		return ResponseEntity
 			.status(successCode.getHttpStatus())
 			.body(GlobalResponse.ok(successCode, userService.get(userId)));
@@ -46,7 +46,7 @@ public class UserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserCreateResponse>> signup(
 		@Valid @RequestBody UserRequest.UserSignupRequest request
 	) {
-		SuccessCode successCode = SuccessCode.CREATE_SUCCESS;
+		SuccessCode successCode = SuccessCode.USER_SIGNUP_SUCCESS;
 		return ResponseEntity
 			.status(successCode.getHttpStatus())
 			.body(GlobalResponse.ok(successCode, userService.signup(request)));
