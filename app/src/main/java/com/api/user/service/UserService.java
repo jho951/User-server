@@ -44,6 +44,14 @@ public interface UserService {
 	UserResponse.UserDetailResponse ensureSocial(UserRequest.UserEnsureSocialRequest request);
 
 	/**
+	 * 소셜 식별자를 기준으로 사용자를 조회/생성하고 소셜 계정을 멱등하게 연결합니다.
+	 *
+	 * @param request 소셜 사용자 보장 요청
+	 * @return 보장된 사용자 상세 응답
+	 */
+	UserResponse.UserDetailResponse findOrCreateAndLinkSocial(UserRequest.UserEnsureSocialRequest request);
+
+	/**
 	 * 사용자 상태를 변경합니다.
 	 *
 	 * @param userId 사용자 식별자

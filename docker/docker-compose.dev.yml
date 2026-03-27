@@ -1,3 +1,5 @@
+name: user-server
+
 services:
   mysql:
     image: mysql:8.4
@@ -9,7 +11,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       TZ: ${TZ:-Asia/Seoul}
     ports:
-      - "3306:3306"
+      - "3308:3306"
     volumes:
       - user_server_mysql_dev_data:/var/lib/mysql
       - ./mysql/dev/conf.d:/etc/mysql/conf.d:ro

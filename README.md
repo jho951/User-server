@@ -90,11 +90,55 @@ MySQL 설정은 compose 파일에 직접 넣지 않고 아래 `cnf` 디렉터리
 - `GET /users/me`
 - `POST /users/signup`
 - `POST /internal/users`
-- `POST /internal/users/social`
+- `POST /internal/users/find-or-create-and-link-social`
 - `PUT /internal/users/{userId}/status`
 - `GET /internal/users/{userId}`
 - `GET /internal/users/by-email?email=...`
-- `GET /internal/users/by-social?socialType=GOOGLE&providerId=...`
+
+`POST /internal/users/find-or-create-and-link-social`는 소셜 링크 매핑의 원본 데이터를 `user-service`가 소유합니다.
+
+- 소셜 링크 원본 필드: `provider`, `providerUserId`, `email`, `userId`
+- 요청 본문은 `provider`/`providerUserId`를 권장하며, 하위 호환으로 `socialType`/`providerId`도 허용합니다.
+- 소셜 링크 생성/조회의 단일 진입점: `POST /internal/users/find-or-create-and-link-social`
+- `POST /internal/users/social`, `POST /internal/users/ensure-social`, `GET /internal/users/by-social`는 비활성 정책이며 `400`을 반환합니다.
+
+필수 관측 지표:
+
+- `social_link_requests_total`
+- `social_link_conflicts_total`
+- `social_link_create_total`
+- `social_link_existing_total`
+- `social_link_latency_ms`
+
+구조화 로그 필드(키-값 로그):
+
+- `provider`
+- `providerUserId` (SHA-256 해시 앞 16자)
+- `email`
+- `userId`
+- `result` (`created|existing|error`)
+- `errorCode`
+
+운영 반영 순서:
+
+1. user-service 대시보드/알림 지표를 위 `social_link_*` 기준으로 전환 완료 확인
+2. 전환 완료 후 auth-service의 `auth_social_accounts` drop 적용
+
+user-service 마이그레이션(이 저장소에서 수행):
+
+```bash
+export MYSQL_HOST='<prod-user-service-db-endpoint>'
+export MYSQL_PORT='3306'
+export MYSQL_DB='user_service'
+export MYSQL_USER='<user_service_db_user>'
+export MYSQL_PASSWORD='<secret>'
+
+# apply
+./scripts/migrations/user-service/run_social_link_email_migration.sh apply
+
+# rollback
+./scripts/migrations/user-service/run_social_link_email_migration.sh rollback
+```
 
 Gateway 버저닝 정책:
 
@@ -112,7 +156,7 @@ Gateway 버저닝 정책:
 
 ## Security
 
-`user-service`는 `auth-service`가 발급한 JWT를 직접 검증합니다.
+`user-service`는 경로별로 인증 방식을 분리합니다.
 
 - 공개 API: `POST /users/signup` (`features.public-user-api.enabled=true` 일 때만 노출)
 - 보호 API: `GET /users/me` (`features.public-user-api.enabled=true` 일 때만 노출)
@@ -136,9 +180,13 @@ Gateway 버저닝 정책:
 
 추가 정책:
 
-- `/users/me`는 인증된 사용자 토큰이면서 `status=ACTIVE`일 때만 허용됩니다.
-- `/internal/users/**`는 `scope` 또는 `scp` claim에 `internal`이 포함된 서비스 토큰만 허용됩니다.
-- JWT 검증 시 `iss`, `aud`, `sub` 존재 여부를 함께 검사합니다.
+- `/internal/**`:
+  - `auth-service` 내부 Bearer JWT만 허용
+  - `iss`, `aud`, `sub`를 검증
+  - `scope` 또는 `scp`에 `internal`이 포함되어야 허용
+- `/users/**`:
+  - gateway 사용자 컨텍스트 헤더(`X-User-Id`, `X-User-Status`) 또는 Bearer 사용자 토큰 기준으로 인증 처리
+  - `/users/me`는 `status=A`일 때만 허용
 
 ## Block Server Alignment
 

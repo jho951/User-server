@@ -8,8 +8,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,9 +28,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.api.common.dto.GlobalResponse;
+import com.api.config.security.gateway.GatewayUserContextFilter;
 import com.core.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,8 +47,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SecurityConfig {
 
 	@Bean
+	@Order(1)
 	/**
-	 * 보안 필터 체인을 구성합니다.
+	 * 내부 API(`/internal/**`) 보안 체인을 구성합니다.
 	 *
 	 * @param http HttpSecurity 설정 객체
 	 * @param jwtAuthenticationConverter JWT 인증 변환기
@@ -51,33 +58,34 @@ public class SecurityConfig {
 	 * @return 보안 필터 체인
 	 * @throws Exception 보안 구성 중 예외
 	 */
-	public SecurityFilterChain securityFilterChain(
+	public SecurityFilterChain internalApiSecurityFilterChain(
 		HttpSecurity http,
 		JwtAuthenticationConverter jwtAuthenticationConverter,
 		JwtAccessPolicy jwtAccessPolicy,
-		ObjectMapper objectMapper
+		ObjectMapper objectMapper,
+		@Qualifier("internalJwtDecoder") JwtDecoder internalJwtDecoder
 	) throws Exception {
 		http
+			.securityMatcher("/internal/**")
 			.csrf(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(HttpMethod.POST, "/users/signup").permitAll()
-				.requestMatchers("/internal/users/**").access(
+				.requestMatchers("/internal/**").access(
 					(authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
 						jwtAccessPolicy.hasInternalScope(authentication.get())
 					)
 				)
-				.requestMatchers("/users/me").authenticated()
 				.anyRequest().denyAll()
 			)
-			.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+			.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+				.decoder(internalJwtDecoder)
+				.jwtAuthenticationConverter(jwtAuthenticationConverter)
+			))
 			.exceptionHandling(ex -> ex
-				.authenticationEntryPoint((request, response, authException) ->
-					writeError(response, objectMapper, HttpStatus.UNAUTHORIZED, GlobalResponse.fail(ErrorCode.UNAUTHORIZED)))
-				.accessDeniedHandler((request, response, accessDeniedException) ->
-					writeError(response, objectMapper, HttpStatus.FORBIDDEN, GlobalResponse.fail(ErrorCode.FORBIDDEN)))
+				.authenticationEntryPoint(unauthorizedEntryPoint(objectMapper))
+				.accessDeniedHandler(forbiddenHandler(objectMapper))
 			)
 			.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
@@ -85,13 +93,75 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	@Order(2)
 	/**
-	 * JWT 디코더를 생성합니다.
+	 * 사용자 API(`/users/**`) 보안 체인을 구성합니다.
+	 * gateway 사용자 컨텍스트 헤더와 Bearer 사용자 토큰을 함께 허용합니다.
+	 *
+	 * @param http HttpSecurity 설정 객체
+	 * @param objectMapper JSON 직렬화 객체
+	 * @param gatewayUserContextFilter gateway 사용자 컨텍스트 필터
+	 * @param userJwtDecoder 사용자 토큰 디코더
+	 * @return 보안 필터 체인
+	 * @throws Exception 보안 구성 중 예외
+	 */
+	public SecurityFilterChain userApiSecurityFilterChain(
+		HttpSecurity http,
+		ObjectMapper objectMapper,
+		GatewayUserContextFilter gatewayUserContextFilter,
+		@Qualifier("userJwtDecoder") JwtDecoder userJwtDecoder
+	) throws Exception {
+		http
+			.securityMatcher("/users/**")
+			.csrf(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.POST, "/users/signup").permitAll()
+				.requestMatchers("/users/me").authenticated()
+				.anyRequest().denyAll()
+			)
+			.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(userJwtDecoder)))
+			.addFilterAfter(gatewayUserContextFilter, BearerTokenAuthenticationFilter.class)
+			.exceptionHandling(ex -> ex
+				.authenticationEntryPoint(unauthorizedEntryPoint(objectMapper))
+				.accessDeniedHandler(forbiddenHandler(objectMapper))
+			)
+			.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
+		return http.build();
+	}
+
+	@Bean
+	@Order(3)
+	/**
+	 * 명시되지 않은 경로를 기본 차단합니다.
+	 *
+	 * @param http HttpSecurity 설정 객체
+	 * @return 보안 필터 체인
+	 * @throws Exception 보안 구성 중 예외
+	 */
+	public SecurityFilterChain defaultDenySecurityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.csrf(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth.anyRequest().denyAll());
+
+		return http.build();
+	}
+
+	@Bean("internalJwtDecoder")
+	/**
+	 * 내부 서비스 호출 JWT 디코더를 생성합니다.
+	 * `iss`, `aud`, `sub`를 엄격히 검증합니다.
 	 *
 	 * @param properties JWT 보안 설정
 	 * @return JWT 디코더
 	 */
-	public JwtDecoder jwtDecoder(JwtSecurityProperties properties) {
+	public JwtDecoder internalJwtDecoder(JwtSecurityProperties properties) {
 		SecretKey secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
 
@@ -117,6 +187,30 @@ public class SecurityConfig {
 		return decoder;
 	}
 
+	@Bean("userJwtDecoder")
+	/**
+	 * 사용자 API용 JWT 디코더를 생성합니다.
+	 * gateway를 경유한 사용자 토큰을 위해 sub 존재 여부만 강제합니다.
+	 *
+	 * @param properties JWT 보안 설정
+	 * @return JWT 디코더
+	 */
+	public JwtDecoder userJwtDecoder(JwtSecurityProperties properties) {
+		SecretKey secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+
+		OAuth2TokenValidator<Jwt> withSubject = jwt -> {
+			String subject = jwt.getSubject();
+			if (subject == null || subject.isBlank()) {
+				return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "sub claim is required", null));
+			}
+			return OAuth2TokenValidatorResult.success();
+		};
+
+		decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(List.of(JwtValidators.createDefault(), withSubject)));
+		return decoder;
+	}
+
 	@Bean
 	/**
 	 * JWT를 Spring Security 인증 객체로 변환하는 컨버터를 생성합니다.
@@ -128,6 +222,16 @@ public class SecurityConfig {
 		converter.setJwtGrantedAuthoritiesConverter(new JwtAuthorityConverter());
 		converter.setPrincipalClaimName("sub");
 		return converter;
+	}
+
+	private AuthenticationEntryPoint unauthorizedEntryPoint(ObjectMapper objectMapper) {
+		return (request, response, authException) ->
+			writeError(response, objectMapper, HttpStatus.UNAUTHORIZED, GlobalResponse.fail(ErrorCode.UNAUTHORIZED));
+	}
+
+	private AccessDeniedHandler forbiddenHandler(ObjectMapper objectMapper) {
+		return (request, response, accessDeniedException) ->
+			writeError(response, objectMapper, HttpStatus.FORBIDDEN, GlobalResponse.fail(ErrorCode.FORBIDDEN));
 	}
 
 	/**

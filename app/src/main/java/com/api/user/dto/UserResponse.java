@@ -25,6 +25,10 @@ public class UserResponse {
 	@Builder
 	public static class UserSocialResponse {
 		private UUID id;
+		private UUID userId;
+		private UserSocialType provider;
+		private String providerUserId;
+		private String email;
 		private UserSocialType socialType;
 		private String providerId;
 
@@ -37,6 +41,10 @@ public class UserResponse {
 		public static UserSocialResponse from(UserSocial userSocial) {
 			return UserSocialResponse.builder()
 				.id(userSocial.getId())
+				.userId(userSocial.getUser().getId())
+				.provider(userSocial.getSocialType())
+				.providerUserId(userSocial.getProviderId())
+				.email(userSocial.getEmail())
 				.socialType(userSocial.getSocialType())
 				.providerId(userSocial.getProviderId())
 				.build();

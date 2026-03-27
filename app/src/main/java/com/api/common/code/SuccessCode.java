@@ -29,7 +29,10 @@ public enum SuccessCode {
     USER_GET_BY_SOCIAL_SUCCESS(200, 3007, "소셜 계정 기준 사용자 조회 성공"),
 
     /** 소셜 사용자 보장 성공 */
-    USER_ENSURE_SOCIAL_SUCCESS(200, 3008, "소셜 사용자 보장 성공");
+    USER_ENSURE_SOCIAL_SUCCESS(200, 3008, "소셜 사용자 보장 성공"),
+
+    /** 사용자 조회/생성 및 소셜 연결 성공 */
+    USER_FIND_OR_CREATE_AND_LINK_SOCIAL_SUCCESS(200, 3009, "사용자 조회/생성 및 소셜 연결 성공");
 
     private final int httpStatus;
     private final int code;

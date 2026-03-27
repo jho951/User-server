@@ -45,6 +45,9 @@ public class UserSocial extends BaseEntity {
 	@Column(name = "provider_id", nullable = false, length = 150)
 	private String providerId;
 
+	@Column(name = "email", length = 191)
+	private String email;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
@@ -53,12 +56,18 @@ public class UserSocial extends BaseEntity {
 	 * 소셜 계정 엔티티를 생성하는 빌더입니다.
 	 * @param socialType 소셜 로그인 제공자 타입 (예: GGL, KKO)
 	 * @param providerId 소셜 제공자(IdP)로부터 받은 사용자의 고유 식별자
+	 * @param email      소셜 계정과 연결 당시 이메일 링크
 	 * @param user       소셜 계정과 연결된 시스템 사용자 정보
 	 */
 	@Builder
-	private UserSocial(UserSocialType socialType, String providerId, User user) {
+	private UserSocial(UserSocialType socialType, String providerId, String email, User user) {
 		this.socialType = socialType;
 		this.providerId = providerId;
+		this.email = email;
 		this.user = user;
+	}
+
+	public void changeEmail(String email) {
+		this.email = email;
 	}
 }

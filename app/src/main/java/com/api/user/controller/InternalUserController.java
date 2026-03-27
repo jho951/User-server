@@ -95,6 +95,22 @@ public class InternalUserController {
 	}
 
 	/**
+	 * 사용자를 조회/생성하고 소셜 계정을 멱등하게 연결합니다.
+	 *
+	 * @param request 소셜 사용자 보장 요청
+	 * @return 보장된 사용자 상세 응답
+	 */
+	@PostMapping("/find-or-create-and-link-social")
+	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> findOrCreateAndLinkSocial(
+		@Valid @RequestBody UserRequest.UserEnsureSocialRequest request
+	) {
+		SuccessCode successCode = SuccessCode.USER_FIND_OR_CREATE_AND_LINK_SOCIAL_SUCCESS;
+		return ResponseEntity
+			.status(successCode.getHttpStatus())
+			.body(GlobalResponse.ok(successCode, userService.findOrCreateAndLinkSocial(request)));
+	}
+
+	/**
 	 * 사용자 상태를 변경합니다.
 	 *
 	 * @param userId 사용자 식별자

@@ -6,6 +6,8 @@ import com.api.user.constant.UserSocialType;
 import com.api.user.constant.UserStatus;
 import com.core.constant.UserRole;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,9 +60,11 @@ public class UserRequest {
 		private UUID userId;
 
 		@NotNull
+		@JsonAlias("provider")
 		private UserSocialType socialType;
 
 		@NotBlank
+		@JsonAlias("providerUserId")
 		private String providerId;
 	}
 
@@ -76,9 +80,11 @@ public class UserRequest {
 		private String email;
 
 		@NotNull
+		@JsonAlias("provider")
 		private UserSocialType socialType;
 
 		@NotBlank
+		@JsonAlias("providerUserId")
 		private String providerId;
 
 		private UserRole role;

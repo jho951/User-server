@@ -23,3 +23,9 @@ security:
     secret: ${AUTH_JWT_SECRET:abcdefghijklmnopqrstuvwxyz12345678901234567890}
     audience: ${AUTH_JWT_AUDIENCE:user-service}
     internal-scope: ${AUTH_INTERNAL_SCOPE:internal}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

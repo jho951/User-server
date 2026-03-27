@@ -4,9 +4,9 @@ import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.common.code.SuccessCode;
 import com.api.common.dto.GlobalResponse;
+import com.api.config.security.gateway.GatewayUserPrincipal;
 import com.api.user.dto.UserRequest;
 import com.api.user.dto.UserResponse;
 import com.api.user.service.UserService;
@@ -43,17 +44,30 @@ public class UserController {
 	/**
 	 * 인증된 사용자의 내 정보를 조회합니다.
 	 *
-	 * @param jwt 인증된 JWT
+	 * @param authentication 인증 객체
 	 * @return 내 사용자 정보 응답
 	 */
 	@PreAuthorize("@jwtAccessPolicy.hasActiveStatus(authentication)")
 	@GetMapping("/me")
-	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> me(@AuthenticationPrincipal Jwt jwt) {
-		UUID userId = UUID.fromString(jwt.getSubject());
+	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> me(Authentication authentication) {
+		UUID userId = resolveUserId(authentication);
 		SuccessCode successCode = SuccessCode.USER_ME_GET_SUCCESS;
 		return ResponseEntity
 			.status(successCode.getHttpStatus())
 			.body(GlobalResponse.ok(successCode, userService.get(userId)));
+	}
+
+	private UUID resolveUserId(Authentication authentication) {
+		if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+			return UUID.fromString(jwtAuthenticationToken.getToken().getSubject());
+		}
+
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof GatewayUserPrincipal gatewayUserPrincipal) {
+			return gatewayUserPrincipal.userId();
+		}
+
+		throw new IllegalStateException("Unsupported user principal type");
 	}
 
 	/**
