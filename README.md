@@ -64,6 +64,9 @@ export USER_SERVICE_INTERNAL_JWT_SCOPE=internal
 Docker로 실행하려면 아래 스크립트를 사용합니다.
 
 ```bash
+# optional: 공유 MSA 네트워크 이름 커스터마이징
+# export MSA_SHARED_NETWORK=msa-shared
+
 ./scripts/run.docker.sh dev
 ./scripts/run.docker.sh prod
 ```
@@ -72,6 +75,11 @@ Docker 실행 시 각 환경별 compose가 `mysql` 컨테이너와 `user-server`
 
 - 개발: `docker/docker-compose.dev.yml`
 - 운영: `docker/docker-compose.prod.yml`
+
+네트워크 구성:
+
+- `msa-shared`(external): gateway/auth/user-service 간 통신용 공유 네트워크
+- `user-private`(internal): user-service와 user-service DB 전용 내부 네트워크
 
 MySQL 설정은 compose 파일에 직접 넣지 않고 아래 `cnf` 디렉터리로 분리되어 있습니다.
 
@@ -138,6 +146,29 @@ export MYSQL_PASSWORD='<secret>'
 
 # rollback
 ./scripts/migrations/user-service/run_social_link_email_migration.sh rollback
+```
+
+Docker 로그 확인:
+
+```bash
+# user-service 애플리케이션 로그 (gateway 경유 접근 + SQL 포함)
+docker logs -f user-server-dev
+
+# MySQL 로그
+docker logs -f user-server-mysql-dev
+```
+
+로그 성격:
+
+- gateway 경유 접근 로그: `http_access method=... path=... status=... durationMs=...`
+- DB 저장 SQL 로그(dev): `org.hibernate.SQL`, `org.hibernate.orm.jdbc.bind`
+
+운영에서 SQL 로그를 임시 활성화하려면:
+
+```bash
+export LOGGING_LEVEL_ORG_HIBERNATE_SQL=DEBUG
+export LOGGING_LEVEL_ORG_HIBERNATE_BIND=TRACE
+./scripts/run.docker.sh prod
 ```
 
 Gateway 버저닝 정책:

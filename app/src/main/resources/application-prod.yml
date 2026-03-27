@@ -29,3 +29,9 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+
+logging:
+  level:
+    com.api.config.logging.RequestAccessLogFilter: INFO
+    org.hibernate.SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL:WARN}
+    org.hibernate.orm.jdbc.bind: ${LOGGING_LEVEL_ORG_HIBERNATE_BIND:WARN}

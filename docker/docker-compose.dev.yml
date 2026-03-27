@@ -10,8 +10,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-user_service}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       TZ: ${TZ:-Asia/Seoul}
-    ports:
-      - "3308:3306"
+    expose:
+      - "3306"
     volumes:
       - user_server_mysql_dev_data:/var/lib/mysql
       - ./mysql/dev/conf.d:/etc/mysql/conf.d:ro
@@ -21,6 +21,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 20s
+    networks:
+      - user-private
     restart: unless-stopped
 
   user-server:
@@ -48,7 +50,18 @@ services:
       FEATURES_ADMIN_API_ENABLED: ${FEATURES_ADMIN_API_ENABLED:-false}
       FEATURES_ADMIN_AUTH_ENABLED: ${FEATURES_ADMIN_AUTH_ENABLED:-false}
       TZ: ${TZ:-Asia/Seoul}
+    networks:
+      - user-private
+      - msa-shared
     restart: unless-stopped
 
 volumes:
   user_server_mysql_dev_data:
+
+networks:
+  user-private:
+    driver: bridge
+    internal: true
+  msa-shared:
+    external: true
+    name: ${MSA_SHARED_NETWORK:-msa-shared}
