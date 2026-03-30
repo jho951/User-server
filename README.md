@@ -142,8 +142,14 @@ export MYSQL_DB='user_service'
 export MYSQL_USER='<user_service_db_user>'
 export MYSQL_PASSWORD='<secret>'
 
+# UUID CHAR(36) binding
+./scripts/migrations/user-service/run_uuid_char_binding_migration.sh apply
+
 # apply
 ./scripts/migrations/user-service/run_social_link_email_migration.sh apply
+
+# rollback UUID CHAR(36) binding
+./scripts/migrations/user-service/run_uuid_char_binding_migration.sh rollback
 
 # rollback
 ./scripts/migrations/user-service/run_social_link_email_migration.sh rollback
