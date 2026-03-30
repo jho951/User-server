@@ -34,8 +34,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:mysql://mysql:3306/user_service?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true}

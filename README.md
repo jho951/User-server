@@ -65,7 +65,7 @@ export USER_SERVICE_INTERNAL_JWT_SCOPE=internal
 ./gradlew clean :app:bootRun
 ```
 
-기본 프로필은 `dev`이며, 서버는 `http://localhost:8082`으로 실행됩니다.
+기본 프로필은 `dev`이며, 서비스는 내부적으로 `8082` 포트에서 동작합니다.
 
 Docker로 실행하려면 아래 스크립트를 사용합니다.
 
@@ -76,6 +76,7 @@ Docker로 실행하려면 아래 스크립트를 사용합니다.
 Docker 실행 시 단일 compose 스택(`docker/docker-compose.yml`)에서 `dev` 환경만 기동합니다.
 
 - 개발 스택: `mysql`, `user-service`
+- 호스트 포트는 publish하지 않고, `gateway`가 `service-backbone-shared`에서 `user-service:8082`로만 접근합니다.
 
 네트워크 구성:
 
