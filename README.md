@@ -7,6 +7,7 @@
 - 공통 계약 레포: `https://github.com/jho951/contract`
 - 이 서비스의 코드 SoT: `User-server` `main`
 - 인터페이스 변경 시 본 저장소 구현보다 계약 레포 변경을 먼저 반영합니다.
+- 책임 분리: `User-server`는 프로필 가시성/개인정보 공개 범위, `Authz-server`는 권한 진실, 소비자 서비스는 실제 기능 집행을 소유합니다.
 
 ## Modules
 
@@ -103,6 +104,7 @@ MySQL 설정은 compose 파일에 직접 넣지 않고 아래 `cnf` 디렉터리
 - `PUT /internal/users/{userId}/status`
 - `GET /internal/users/{userId}`
 - `GET /internal/users/by-email?email=...`
+- 프로필 공개 범위와 권한 노출은 별도 visibility/privacy 정책으로 관리합니다.
 
 `POST /internal/users/find-or-create-and-link-social`는 소셜 링크 매핑의 원본 데이터를 `user-service`가 소유합니다.
 
