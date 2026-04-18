@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:user_service_test;MODE=MYSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        type:
+          preferred_uuid_jdbc_type: CHAR
+
+features:
+  public-user-api:
+    enabled: true
+  internal-user-api:
+    enabled: true
+
+security:
+  jwt:
+    enabled: true
+    issuer: auth-service
+    secret: abcdefghijklmnopqrstuvwxyz12345678901234567890
+    audience: user-service
+    internal-scope: internal
+
+auditlog:
+  enabled: false

@@ -30,7 +30,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      service: ${spring.application.name:user-service}
+      env: ${SPRING_PROFILES_ACTIVE:local}
 
 logging:
   level:

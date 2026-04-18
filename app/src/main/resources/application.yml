@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: user-service
   profiles:
     default: dev
 
@@ -24,3 +26,27 @@ auditlog:
   async-enabled: ${AUDITLOG_ASYNC_ENABLED:true}
   async-thread-count: ${AUDITLOG_ASYNC_THREAD_COUNT:2}
   async-queue-capacity: ${AUDITLOG_ASYNC_QUEUE_CAPACITY:1000}
+
+platform:
+  governance:
+    enabled: ${PLATFORM_GOVERNANCE_ENABLED:true}
+    audit:
+      enabled: ${PLATFORM_GOVERNANCE_AUDIT_ENABLED:${AUDITLOG_ENABLED:true}}
+      service-name: ${PLATFORM_GOVERNANCE_AUDIT_SERVICE_NAME:${spring.application.name:user-service}}
+      environment: ${PLATFORM_GOVERNANCE_AUDIT_ENVIRONMENT:${spring.profiles.active:local}}
+      failure-policy: ${PLATFORM_GOVERNANCE_AUDIT_FAILURE_POLICY:FAIL_CLOSED}
+      identity:
+        enabled: ${PLATFORM_GOVERNANCE_AUDIT_IDENTITY_ENABLED:true}
+        validation-enabled: ${PLATFORM_GOVERNANCE_AUDIT_IDENTITY_VALIDATION_ENABLED:true}
+        fail-on-validation-error: ${PLATFORM_GOVERNANCE_AUDIT_IDENTITY_FAIL_ON_VALIDATION_ERROR:true}
+    engine:
+      strict: ${PLATFORM_GOVERNANCE_ENGINE_STRICT:false}
+    violation:
+      action: ${PLATFORM_GOVERNANCE_VIOLATION_ACTION:DENY}
+      handler-failure-fatal: ${PLATFORM_GOVERNANCE_VIOLATION_HANDLER_FAILURE_FATAL:false}
+    operational:
+      fail-fast-enabled: ${PLATFORM_GOVERNANCE_OPERATIONAL_FAIL_FAST_ENABLED:true}
+      production-profiles: ${PLATFORM_GOVERNANCE_OPERATIONAL_PRODUCTION_PROFILES:prod}
+      allow-non-strict-engine-in-production: ${PLATFORM_GOVERNANCE_OPERATIONAL_ALLOW_NON_STRICT_ENGINE_IN_PRODUCTION:false}
+      require-policy-config-in-enforcing-mode: ${PLATFORM_GOVERNANCE_OPERATIONAL_REQUIRE_POLICY_CONFIG_IN_ENFORCING_MODE:false}
+      require-fatal-handler-failures-in-production: ${PLATFORM_GOVERNANCE_OPERATIONAL_REQUIRE_FATAL_HANDLER_FAILURES_IN_PRODUCTION:true}

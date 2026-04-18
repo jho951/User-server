@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.5'
+    id 'org.springframework.boot' version '3.5.13'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'java'
 }
@@ -13,6 +13,9 @@ java {
 dependencies {
     implementation project(':domain')
     implementation 'io.github.jho951:core:1.0.1'
+    implementation platform("io.github.jho951.platform:platform-governance-bom:${rootProject.ext.platformGovernanceVersion}")
+    implementation 'io.github.jho951.platform:platform-governance-starter'
+    implementation 'io.github.jho951:audit-log-core'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -28,10 +31,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named("test") {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false
-    enabled = false
 }

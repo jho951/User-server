@@ -47,6 +47,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SecurityConfig {
 
 	@Bean
+	@Order(0)
+	public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.securityMatcher("/actuator/**")
+			.cors(AbstractHttpConfigurer::disable)
+			.csrf(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+		return http.build();
+	}
+
+	@Bean
 	@Order(1)
 	/**
 	 * 내부 API(`/internal/**`) 보안 체인을 구성합니다.

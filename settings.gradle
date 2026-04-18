@@ -5,5 +5,22 @@ include 'app'
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        ['platform-governance'].each { repoName ->
+            maven {
+                url = uri("https://maven.pkg.github.com/jho951/${repoName}")
+                def githubPackagesUsername = providers.environmentVariable('GITHUB_ACTOR')
+                    .orElse(providers.gradleProperty('githubPackagesUsername'))
+                    .orElse(providers.gradleProperty('githubUsername'))
+                def githubPackagesToken = providers.environmentVariable('GITHUB_TOKEN')
+                    .orElse(providers.gradleProperty('githubPackagesToken'))
+                    .orElse(providers.gradleProperty('githubToken'))
+                if (githubPackagesUsername.present && githubPackagesToken.present) {
+                    credentials {
+                        username = githubPackagesUsername.get()
+                        password = githubPackagesToken.get()
+                    }
+                }
+            }
+        }
     }
 }

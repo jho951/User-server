@@ -5,6 +5,8 @@ import com.core.exception.ErrorCode;
 import com.core.exception.BusinessException;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +30,20 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(errorCode.getHttpStatus())
 			.body(GlobalResponse.fail(errorCode, e.getMessage()));
+	}
+
+	/**
+	 * 인가 실패 예외를 처리합니다.
+	 *
+	 * @param e 인가 실패 예외
+	 * @return 에러 응답
+	 */
+	@ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+	public ResponseEntity<GlobalResponse<Void>> handleAccessDeniedException(Exception e) {
+		ErrorCode errorCode = ErrorCode.FORBIDDEN;
+		return ResponseEntity
+			.status(errorCode.getHttpStatus())
+			.body(GlobalResponse.fail(errorCode));
 	}
 
 	/**

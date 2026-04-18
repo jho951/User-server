@@ -1,10 +1,11 @@
-# User Service
+# User-server
 
->사용자 도메인의 기준 시스템으로 동작하는 멀티모듈 백엔드입니다.
+> 사용자 마스터 데이터, 소셜 링크, 프로필 가시성, 내부 사용자 API를 담당하는 서비스입니다.
 
 ## Contract Source
 
 - 공통 계약 레포: `https://github.com/jho951/contract`
+- 구현 레포: `https://github.com/jho951/User-server`
 - 이 서비스의 코드 SoT: `User-server` `main`
 - 인터페이스 변경 시 본 저장소 구현보다 계약 레포 변경을 먼저 반영합니다.
 - 책임 분리: `User-server`는 프로필 가시성/개인정보 공개 범위, `Authz-server`는 권한 진실, 소비자 서비스는 실제 기능 집행을 소유합니다.
@@ -18,7 +19,7 @@
 ## Tech Stack
 
 - Java 17
-- Spring Boot 3.3.5
+- Spring Boot 3.5.13
 - Spring Data JPA, Spring Security, Validation
 - MySQL 8.x
 - Gradle 9.x
@@ -226,7 +227,7 @@ Gateway 연동 계약(고정):
 
 ## Security
 
-`user-service`는 경로별로 인증 방식을 분리합니다.
+`user-service` 런타임은 경로별로 인증 방식을 분리합니다.
 
 - 공개 API: `POST /users/signup` (`features.public-user-api.enabled=true` 일 때만 노출)
 - 보호 API: `GET /users/me` (`features.public-user-api.enabled=true` 일 때만 노출)
@@ -290,3 +291,9 @@ Gateway 연동 계약(고정):
 - 저장소의 `gradle.properties`에는 실제 키를 넣지 않습니다.
 - 실제 값은 환경변수 또는 `~/.gradle/gradle.properties`를 사용합니다.
 - 토큰/웹훅/JWT 시크릿이 노출되면 즉시 폐기 후 재발급하세요.
+
+## Docs
+
+- 요구사항: `docs/REQUIREMENTS.md`
+- 디버깅: `docs/runbook/DEBUG.md`
+- 장애 대응: `docs/troubleshooting.md`

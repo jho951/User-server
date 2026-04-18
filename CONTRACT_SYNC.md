@@ -1,9 +1,10 @@
 # Contract Sync (User-server)
 
 - Contract Source: https://github.com/jho951/contract
+- Implementation Repo: https://github.com/jho951/User-server
 - Service SoT Branch: `main`
 - Contract Role: User master and social-link ownership
-- Profile visibility/privacy ownership: user-service
+- Profile visibility/privacy ownership: User-server
 - Audit Log: https://github.com/jho951/contract/blob/main/contracts/audit-log/README.md
 
 ## Required Links
@@ -20,3 +21,4 @@
 - [ ] social link ownership behavior aligned with contract
 - [ ] profile visibility/privacy policy aligned with contract
 - [ ] audit-log event emission matches `contracts/audit-log/service-events.md`
+- [ ] implementation docs match runtime `user-service` behavior and internal JWT rules
