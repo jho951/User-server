@@ -168,5 +168,5 @@ Docker 실행 기준은 [docker.md](./docker.md)를 따릅니다.
 3. private dependency가 추가되면 CI secret과 Docker build arg 영향도 확인합니다.
 4. public API 변경이면 `docs/openapi/user-service.yml`을 같이 갱신합니다.
 5. DB 변경이면 entity 변경과 운영 schema/migration 필요 여부를 먼저 구분합니다.
-6. Docker runtime 값이 바뀌면 `docker/{dev,prod}/compose.yml`, [docker.md](./docker.md)를 같이 갱신합니다.
+6. Docker runtime 값이 바뀌면 `docker/compose.yml`, `docker/{dev,prod}/compose.yml`, [docker.md](./docker.md)를 같이 갱신합니다.
 7. 최소 `./gradlew test` 또는 변경 범위에 맞는 Gradle task를 실행합니다.

@@ -3,7 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_PROJECT_NAME="user-service"
 ACTION="${1:-up}"
 ENV_NAME="${2:-dev}"
 shift $(( $# > 0 ? 1 : 0 )) || true
@@ -19,7 +18,10 @@ case "$ACTION" in
 esac
 
 case "$ENV_NAME" in
-  dev|prod) COMPOSE_FILE="$PROJECT_ROOT/docker/$ENV_NAME/compose.yml" ;;
+  dev|prod)
+    COMPOSE_FILE="$PROJECT_ROOT/docker/compose.yml"
+    ENV_COMPOSE_FILE="$PROJECT_ROOT/docker/$ENV_NAME/compose.yml"
+    ;;
   *) usage; exit 1 ;;
 esac
 
@@ -31,6 +33,7 @@ if [[ -f "$ENV_FILE" ]]; then
   set +a
 fi
 
+COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-user-service-${ENV_NAME}}"
 SHARED_NETWORK="${SERVICE_SHARED_NETWORK:-${BACKEND_SHARED_NETWORK:-${MSA_SHARED_NETWORK:-service-backbone-shared}}}"
 if ! docker network inspect "$SHARED_NETWORK" >/dev/null 2>&1; then
   echo "Creating external docker network: $SHARED_NETWORK"
@@ -39,7 +42,7 @@ fi
 
 compose() {
   SERVICE_SHARED_NETWORK="$SHARED_NETWORK" BACKEND_SHARED_NETWORK="$SHARED_NETWORK" MSA_SHARED_NETWORK="$SHARED_NETWORK" \
-    docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" "$@"
+    docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" -f "$ENV_COMPOSE_FILE" "$@"
 }
 
 case "$ACTION" in

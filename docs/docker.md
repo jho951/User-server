@@ -4,8 +4,9 @@
 
 | 환경 | Compose 파일 | Spring 프로필 |
 | --- | --- | --- |
-| `dev` | `docker/dev/compose.yml` | `dev` |
-| `prod` | `docker/prod/compose.yml` | `prod` |
+| 공통 | `docker/compose.yml` | 공통 서비스 정의 |
+| `dev` | `docker/dev/compose.yml` | `dev` override |
+| `prod` | `docker/prod/compose.yml` | `prod` override |
 
 실행:
 
@@ -35,6 +36,7 @@ Docker runtime 파일은 환경 단위로 관리합니다.
 ```text
 docker
 ├── Dockerfile
+├── compose.yml
 ├── dev
 │   ├── compose.yml
 │   └── services
@@ -48,7 +50,7 @@ docker
 ```
 
 `docker/Dockerfile`은 dev/prod가 공유합니다.
-Compose와 환경별 MySQL 설정은 `docker/{env}` 아래에 함께 둡니다.
+공통 Compose 서비스 정의는 `docker/compose.yml`에 두고, 환경별 값과 MySQL 설정은 `docker/{env}` 아래에 둡니다.
 
 ## 실행 스크립트
 
@@ -115,6 +117,13 @@ networks:
   service-shared:
     external: true
     name: ${SERVICE_SHARED_NETWORK:-${BACKEND_SHARED_NETWORK:-${MSA_SHARED_NETWORK:-service-backbone-shared}}}
+```
+
+직접 Docker Compose를 실행할 때는 공통 파일을 먼저 지정합니다.
+
+```bash
+docker compose -f docker/compose.yml -f docker/dev/compose.yml config
+docker compose -f docker/compose.yml -f docker/prod/compose.yml config
 ```
 
 ## 환경 변수

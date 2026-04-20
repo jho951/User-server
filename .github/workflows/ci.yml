@@ -48,5 +48,5 @@ jobs:
 
       - name: Validate Docker Compose files
         run: |
-          docker compose -f docker/dev/compose.yml config >/tmp/user-dev.yml
-          USER_SERVICE_HOST_BIND=127.0.0.1 MYSQL_PASSWORD=ci MYSQL_ROOT_PASSWORD=ci SPRING_DATASOURCE_PASSWORD=ci AUTH_JWT_SECRET=abcdefghijklmnopqrstuvwxyz12345678901234567890 USER_SERVICE_INTERNAL_JWT_SECRET=abcdefghijklmnopqrstuvwxyz12345678901234567890 docker compose -f docker/prod/compose.yml config >/tmp/user-prod.yml
+          docker compose -f docker/compose.yml -f docker/dev/compose.yml config >/tmp/user-dev.yml
+          USER_SERVICE_HOST_BIND=127.0.0.1 MYSQL_PASSWORD=ci MYSQL_ROOT_PASSWORD=ci SPRING_DATASOURCE_PASSWORD=ci AUTH_JWT_SECRET=abcdefghijklmnopqrstuvwxyz12345678901234567890 USER_SERVICE_INTERNAL_JWT_SECRET=abcdefghijklmnopqrstuvwxyz12345678901234567890 docker compose -f docker/compose.yml -f docker/prod/compose.yml config >/tmp/user-prod.yml
