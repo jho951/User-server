@@ -8,6 +8,7 @@ servers:
 tags:
   - name: PublicUser
   - name: InternalUser
+  - name: System
 paths:
   /users/signup:
     post:
@@ -273,6 +274,14 @@ paths:
                 $ref: '#/components/schemas/UserDetailResponseEnvelope'
         default:
           $ref: '#/components/responses/UserError'
+  /error:
+    get:
+      tags: [System]
+      summary: 서블릿 에러 JSON 응답
+      description: Spring 서블릿 컨테이너가 에러 요청을 /error로 전달했을 때 JSON 응답으로 변환한다.
+      responses:
+        default:
+          $ref: '#/components/responses/ServletError'
 components:
   securitySchemes:
     bearerAuth:
@@ -292,6 +301,19 @@ components:
             message: 잘못된 요청입니다.
             code: 7000
             data: null
+    ServletError:
+      description: Servlet container error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServletErrorResponse'
+          example:
+            status: 404
+            error: Not Found
+            message: Not Found
+            path: /missing
+            requestId: req-20260420-0001
+            correlationId: corr-20260420-0001
   schemas:
     UserSignupRequest:
       type: object
@@ -470,3 +492,26 @@ components:
           type: integer
         data:
           nullable: true
+    ServletErrorResponse:
+      type: object
+      required: [status, error, message]
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+        error:
+          type: string
+          description: HTTP reason phrase
+        message:
+          type: string
+          description: Servlet error message or HTTP reason phrase
+        path:
+          type: string
+          description: Error request URI when present
+        requestId:
+          type: string
+          description: Request id header value when present
+        correlationId:
+          type: string
+          description: Correlation id header value when present

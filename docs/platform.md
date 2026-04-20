@@ -4,6 +4,9 @@ user-service는 `platform-governance`, `platform-security`, `platform-security-g
 
 인증 토큰 발급, 세션, credential 정책의 소유자는 auth-service입니다.
 
+`platform-resource`는 현재 user-service에서 사용하지 않습니다.
+프로필 이미지 업로드처럼 owner 기반 resource lifecycle이 필요한 기능이 생길 때 도입합니다.
+
 버전:
 
 | Platform                              | Version  |
@@ -11,6 +14,45 @@ user-service는 `platform-governance`, `platform-security`, `platform-security-g
 | `platform-governance`                 | `2.0.1`  |
 | `platform-security`                   | `2.0.3`  |
 | `platform-security-governance-bridge` | `1.0.1`  |
+
+## Resource 도입 기준
+
+현재 user-service는 파일/리소스 저장 기능을 제공하지 않으므로 `platform-resource` 의존성을 추가하지 않습니다.
+
+향후 프로필 이미지 업로드를 도입하면 `platform-resource`를 사용합니다.
+
+도입 기준:
+
+- 프로필 이미지를 stable `resourceId`로 관리합니다.
+- `User` 엔티티에는 파일 경로, bucket key, storage id를 직접 저장하지 않고 `profileImageResourceId`만 저장합니다.
+- resource owner는 사용자 id로 둡니다.
+- 접근 정책은 owner 기반으로 시작하고, 관리자 조회가 필요하면 `OWNER_OR_ADMIN` 정책을 검토합니다.
+- 삭제 정책은 사용자 탈퇴, 프로필 이미지 교체, 개인정보 파기 요구사항에 맞춰 `SOFT` 또는 `HARD`를 명시합니다.
+- 저장/삭제 후 감사나 후처리가 필요하면 lifecycle event 또는 outbox 정책을 사용합니다.
+- 이미지 MIME type, 최대 크기, lifecycle publish 여부는 `profile-image` kind policy로 선언합니다.
+
+도입하지 않는 경우:
+
+- 단순 기본 아바타 URL처럼 고정 값을 내려주는 경우
+- 외부 OAuth provider의 avatar URL을 그대로 참조만 하는 경우
+- classpath/static asset을 읽는 경우
+
+예상 kind:
+
+```yaml
+platform:
+  resource:
+    kinds:
+      profile-image:
+        allowed-content-types: [image/png, image/jpeg, image/webp]
+        max-size: 5MB
+        access-mode: OWNER_ONLY
+        delete-mode: SOFT
+        notification-mode: OUTBOX
+        lifecycle:
+          publish-on-store: true
+          publish-on-delete: true
+```
 
 ## Governance
 
@@ -126,6 +168,8 @@ platform:
     rate-limit:
       enabled: false
 ```
+
+`/error`는 서블릿 컨테이너가 에러 요청을 전달하는 runtime endpoint이며, user-service가 `ServletErrorResponse` JSON으로 반환합니다.
 
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |

@@ -22,6 +22,7 @@ Gateway는 public `/v1/...` route를 user-service upstream route로 전달하기
 | Internal user route | `/internal/users/*` | user-service | auth-service 등 내부 서비스가 호출하는 route |
 | Runtime route | `/actuator/health` | user-service | 상태 확인 |
 | Metrics route | `/actuator/prometheus` | user-service | Prometheus metric |
+| Servlet error route | `/error` | user-service | 서블릿 컨테이너 에러 JSON 응답 |
 
 ## Endpoint
 
@@ -39,6 +40,7 @@ Gateway는 public `/v1/...` route를 user-service upstream route로 전달하기
 | Internal | `GET` | `/internal/users/{userId}` | internal | `200 GlobalResponse<UserDetailResponse>` | 사용자 id 조회 |
 | Internal | `GET` | `/internal/users/by-email` | internal | `200 GlobalResponse<UserDetailResponse>` | 이메일 조회 |
 | Internal | `GET` | `/internal/users/by-social` | internal | `200 GlobalResponse<UserDetailResponse>` | 소셜 provider key 조회 |
+| System | `GET` | `/error` | internal servlet dispatch | `ServletErrorResponse` | 서블릿 컨테이너 에러 JSON 응답 |
 
 
 ## Common
@@ -54,6 +56,24 @@ Gateway는 public `/v1/...` route를 user-service upstream route로 전달하기
   "data": {}
 }
 ```
+
+### ServletErrorResponse
+
+서블릿 컨테이너가 `/error`로 전달한 에러 요청은 `GlobalResponse`가 아니라 다음 형태의 JSON으로 반환합니다.
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "Not Found",
+  "path": "/missing",
+  "requestId": "req-20260420-0001",
+  "correlationId": "corr-20260420-0001"
+}
+```
+
+필수 필드는 `status`, `error`, `message`입니다.
+`path`, `requestId`, `correlationId`는 요청 속성이나 헤더 값이 있을 때만 포함합니다.
 
 ### UserDetailResponse
 
@@ -131,7 +151,7 @@ Rules:
 - 인증된 사용자 식별자가 필요합니다. JWT를 사용할 때는 `sub == userId`를 원칙으로 합니다.
 - user-service는 인증된 `userId`로 DB에서 사용자와 상태를 조회합니다.
 - DB의 사용자 상태가 `ACTIVE`가 아니면 user-service가 직접 거부합니다.
-- gateway가 전달하는 `X-User-Status` 또는 JWT `status` claim은 `/users/me` 권한 판단에 사용하지 않습니다.
+- JWT `status` claim은 `/users/me` 권한 판단에 사용하지 않습니다.
 
 ## Internal APIs
 
@@ -281,9 +301,22 @@ Role은 다음 값을 사용합니다.
 
 Spring Security authority 문자열인 `ROLE_SUPER_ADMIN`, `ROLE_ADMIN`, `ROLE_USER`, `ROLE_GUEST`도 내부 변환에서 허용합니다.
 
+## 향후 프로필 이미지
+
+현재 API는 프로필 이미지 업로드를 제공하지 않습니다.
+
+향후 프로필 이미지 업로드를 추가하면 이미지는 `platform-resource`의 `profile-image` kind로 저장하고, user-service는 사용자와 이미지 `resourceId`의 연결만 관리합니다.
+
+기본 방향:
+
+- API response에는 파일 경로나 storage id를 노출하지 않습니다.
+- 사용자 상세 응답에는 필요할 때 `profileImageResourceId` 같은 resource 참조를 추가합니다.
+- 이미지 접근 권한은 resource owner인 사용자 id를 기준으로 판단합니다.
+- 이미지 교체와 사용자 탈퇴 시 resource 삭제 정책을 명시합니다.
+- 계약 변경 시 OpenAPI와 service-contract를 먼저 갱신합니다.
+
 ## Gateway 사용자 컨텍스트
 
 - gateway가 검증 후 전달하는 `X-User-Id`는 인증된 사용자 식별자로 사용할 수 있습니다.
 - gateway는 외부 요청의 사용자 컨텍스트 헤더를 제거하고 검증된 값으로 재생성해야 합니다.
-- `X-User-Status`는 user-service 권한 판단에 사용하지 않습니다. 필요하면 로그나 디버깅 참고값으로만 취급합니다.
 - 사용자 active 상태 검사는 user-service가 DB 상태를 기준으로 직접 수행합니다.

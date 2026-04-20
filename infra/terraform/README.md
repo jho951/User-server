@@ -28,19 +28,19 @@ terraform apply
 
 ## 주요 변수
 
-| 변수 | 기본값 | 설명 |
-| --- | --- | --- |
-| `aws_region` | `ap-northeast-2` | 배포 AWS region |
-| `environment` | `prod` | 리소스 이름과 tag에 들어가는 환경 이름 |
-| `service_name` | `user-service` | contract 기준 논리 서비스 이름 |
-| `service_runtime_name` | `user-service` | ECS task 안의 container 이름 |
-| `app_port` | `8082` | container와 target group이 사용하는 포트 |
-| `desired_count` | `2` | ECS service task 수 |
-| `image_tag` | `latest` | Terraform이 task definition에 넣는 ECR image tag |
-| `container_image` | 빈 값 | 외부 image URI를 직접 지정할 때 사용 |
-| `enable_mysql` | `false` | private RDS MySQL 생성 여부 |
-| `app_env` | `{}` | 평문 환경변수 map |
-| `app_secret_env` | `{}` | Secrets Manager에 저장할 민감 환경변수 map |
+| 변수                     | 기본값              | 설명                                           |
+|------------------------|------------------|----------------------------------------------|
+| `aws_region`           | `ap-northeast-2` | 배포 AWS region                                |
+| `environment`          | `prod`           | 리소스 이름과 tag에 들어가는 환경 이름                      |
+| `service_name`         | `user-service`   | contract 기준 논리 서비스 이름                        |
+| `service_runtime_name` | `user-service`   | ECS task 안의 container 이름                     |
+| `app_port`             | `8082`           | container와 target group이 사용하는 포트             |
+| `desired_count`        | `2`              | ECS service task 수                           |
+| `image_tag`            | `latest`         | Terraform이 task definition에 넣는 ECR image tag |
+| `container_image`      | 빈 값              | 외부 image URI를 직접 지정할 때 사용                    |
+| `enable_mysql`         | `false`          | private RDS MySQL 생성 여부                      |
+| `app_env`              | `{}`             | 평문 환경변수 map                                  |
+| `app_secret_env`       | `{}`             | Secrets Manager에 저장할 민감 환경변수 map             |
 
 전체 변수 예시는 [terraform.tfvars.example](./terraform.tfvars.example)을 기준으로 합니다.
 

@@ -2,8 +2,7 @@
 
 ## 계약 기준
 
-- 구현 저장소 이름은 `user-service`입니다.
-- 런타임 서비스 이름은 `user-service`입니다.
+- 공통 계약 레포: `https://github.com/jho951/service-contract`
 - Docker service, gateway upstream, metric tag, 감사 로그 service name은 `user-service`를 기준으로 합니다.
 - 서비스 간 책임, API 계약, 이벤트 계약, 공통 identity header 계약은 contract 레포를 기준으로 합니다.
 - 이 문서는 contract를 반복 정의하지 않고, user-service 내부 구현 배치 기준을 다룹니다.
@@ -26,6 +25,7 @@ user-service가 직접 소유하지 않습니다.
 - 비밀번호 저장
 - 로그인 인증
 - refresh token 발급 또는 저장
+- 파일 저장 runtime
 - 최종 권한 truth 관리
 - 외부 CORS 정책
 - gateway route versioning
@@ -63,6 +63,7 @@ user-service가 직접 소유하지 않습니다.
 | --- | --- |
 | `base` | 공통 응답, 성공/오류 코드, base entity, 공통 예외 처리 |
 | `logging` | 로깅 header, MDC key, 민감정보 마스킹 |
+| `swagger` | OpenAPI/Swagger 설정 |
 
 ## 의존 방향
 
@@ -73,6 +74,7 @@ user-service가 직접 소유하지 않습니다.
 - 소셜 링크의 canonical owner는 user-service입니다. auth-service는 인증 흐름을 담당하되 소셜 링크 소유권을 직접 판단하지 않습니다.
 - Spring Security 체인 조립과 JWT 검증은 platform-security가 담당합니다.
 - 감사 이벤트 발생 시점은 도메인 service가 결정하고, platform-governance 변환은 adapter에 둡니다.
+- 프로필 이미지 업로드를 도입하면 user-service는 사용자와 이미지 `resourceId`의 연결만 소유하고, 파일 저장과 resource lifecycle은 `platform-resource`를 통해 처리합니다.
 
 ## 코드 배치 규칙
 
@@ -81,6 +83,7 @@ user-service가 직접 소유하지 않습니다.
 - 사용자 persistence는 `domain.user.entity`, `domain.user.repository`에 둡니다.
 - 소셜 링크 metric은 `domain.user.observability`에 둡니다.
 - 삭제 시각이 필요해지면 `deletedAt`은 `User` 엔티티에만 추가하고, 공통 `BaseEntity`에는 넣지 않습니다.
+- 프로필 이미지가 필요해지면 `User`에는 원본 파일 경로나 storage id를 저장하지 않고, `profileImageResourceId` 같은 resource 참조만 둡니다.
 - 여러 도메인에서 재사용할 응답/예외/로깅 코드는 `common`에 둡니다.
 - 환경별 런타임 값은 `app/src/main/resources/application-{dev,prod}.yml`에 둡니다.
 - public contract가 바뀌면 `docs/openapi/user-service.yml`과 contract repo를 함께 갱신합니다.
