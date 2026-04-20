@@ -51,5 +51,9 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
+          build-args: |
+            GITHUB_ACTOR=${{ github.actor }}
+          secrets: |
+            gh_token=${{ secrets.GH_PACKAGES_TOKEN || secrets.GH_TOKEN || secrets.PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

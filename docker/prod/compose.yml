@@ -32,7 +32,8 @@ services:
       dockerfile: docker/Dockerfile
       args:
         GITHUB_ACTOR: ${GITHUB_ACTOR:-jho951}
-        GH_TOKEN: ${GH_TOKEN:-}
+      secrets:
+        - gh_token
     image: docker-user-service:prod
     ports:
       - "${USER_SERVICE_HOST_BIND:?USER_SERVICE_HOST_BIND is required}:${USER_SERVICE_HOST_PORT:-8082}:8082"
@@ -62,6 +63,10 @@ services:
 
 volumes:
   user_server_mysql_data_prod:
+
+secrets:
+  gh_token:
+    environment: GH_TOKEN
 
 networks:
   user-private:

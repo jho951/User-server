@@ -32,7 +32,8 @@ services:
       dockerfile: docker/Dockerfile
       args:
         GITHUB_ACTOR: ${GITHUB_ACTOR:-jho951}
-        GH_TOKEN: ${GH_TOKEN:-}
+      secrets:
+        - gh_token
     image: docker-user-service:dev
     depends_on:
       mysql:
@@ -60,6 +61,10 @@ services:
 
 volumes:
   user_server_mysql_data_dev:
+
+secrets:
+  gh_token:
+    environment: GH_TOKEN
 
 networks:
   user-private:
