@@ -1,17 +1,22 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.5'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version "${springBootVersion}"
     id 'java'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaVersion as int)
     }
 }
 
 dependencies {
-    implementation project(':domain')
+    implementation project(':common')
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    implementation platform(libs.platform.governance.bom)
+    implementation libs.platform.governance.starter
+    implementation platform(libs.platform.security.bom)
+    implementation libs.platform.security.starter
+    implementation libs.platform.security.governance.bridge
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -23,14 +28,17 @@ dependencies {
 
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+    testImplementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named("test") {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false
-    enabled = false
 }

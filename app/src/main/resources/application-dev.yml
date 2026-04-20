@@ -15,6 +15,8 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+        type:
+          preferred_uuid_jdbc_type: CHAR
 
   h2:
     console:
@@ -24,22 +26,30 @@ spring:
 user-service:
   base-url: ${USER_SERVICE_BASE_URL:}
 
-security:
-  jwt:
-    enabled: true
-    issuer: ${USER_SERVICE_INTERNAL_JWT_ISSUER:${AUTH_JWT_ISSUER:}}
-    secret: ${USER_SERVICE_INTERNAL_JWT_SECRET:${AUTH_JWT_SECRET:}}
-    audience: ${USER_SERVICE_INTERNAL_JWT_AUDIENCE:${AUTH_JWT_AUDIENCE:}}
-    internal-scope: ${USER_SERVICE_INTERNAL_JWT_SCOPE:${AUTH_INTERNAL_SCOPE:internal}}
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: alpha
+    doc-expansion: none
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      service: ${spring.application.name:user-service}
+      env: ${SPRING_PROFILES_ACTIVE:local}
 
 logging:
   level:
-    com.api.config.logging.RequestAccessLogFilter: INFO
+    com.api.config.logging.com.userservice.app.config.logging.RequestAccessLogFilter: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE

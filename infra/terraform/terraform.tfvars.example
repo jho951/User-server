@@ -1,0 +1,51 @@
+aws_region   = "ap-northeast-2"
+project_name = "msa"
+environment  = "prod"
+
+service_name         = "user-server"
+service_runtime_name = "user-service"
+service_role         = "app-service"
+
+vpc_cidr             = "10.21.0.0/16"
+public_subnet_cidrs  = ["10.21.1.0/24", "10.21.2.0/24"]
+private_subnet_cidrs = ["10.21.11.0/24", "10.21.12.0/24"]
+
+app_ingress_cidrs = ["203.0.113.10/32"]
+app_port      = 8082
+desired_count = 2
+task_cpu      = 512
+task_memory   = 1024
+
+health_check_path = "/actuator/health"
+
+image_tag = "latest"
+
+enable_mysql            = true
+mysql_database_name     = "user_service"
+mysql_username          = "user_service"
+mysql_password          = "replace-with-a-long-random-password"
+mysql_url_env_name      = "SPRING_DATASOURCE_URL"
+mysql_username_env_name = "SPRING_DATASOURCE_USERNAME"
+mysql_password_env_name = "SPRING_DATASOURCE_PASSWORD"
+mysql_jdbc_query        = "?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=true"
+
+app_env = {
+  USER_SERVICE_BASE_URL              = "https://user-service.example.com"
+  USER_SERVICE_INTERNAL_JWT_ISSUER   = "auth-service"
+  USER_SERVICE_INTERNAL_JWT_AUDIENCE = "user-service"
+  USER_SERVICE_INTERNAL_JWT_SCOPE    = "internal"
+  PLATFORM_GOVERNANCE_ENABLED       = "true"
+  PLATFORM_GOVERNANCE_AUDIT_ENABLED = "true"
+  PLATFORM_GOVERNANCE_AUDIT_SERVICE_NAME = "user-service"
+  PLATFORM_GOVERNANCE_AUDIT_ENVIRONMENT  = "prod"
+  PLATFORM_SECURITY_ENABLED              = "true"
+  PLATFORM_SECURITY_SERVICE_ROLE_PRESET  = "API_SERVER"
+  PLATFORM_SECURITY_AUTH_ENABLED         = "false"
+  PLATFORM_SECURITY_INTERNAL_TOKEN_ENABLED = "false"
+  PLATFORM_SECURITY_IP_GUARD_ENABLED       = "false"
+  PLATFORM_SECURITY_RATE_LIMIT_ENABLED     = "false"
+}
+
+app_secret_env = {
+  USER_SERVICE_INTERNAL_JWT_SECRET = "replace-with-shared-hmac-secret"
+}

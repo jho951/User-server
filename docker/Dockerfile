@@ -1,9 +1,14 @@
 FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /workspace
 
-COPY gradlew settings.gradle build.gradle ./
+ARG GITHUB_ACTOR=jho951
+ARG GH_TOKEN
+ENV GITHUB_ACTOR=${GITHUB_ACTOR}
+ENV GH_TOKEN=${GH_TOKEN}
+
+COPY gradlew settings.gradle build.gradle gradle.properties ./
 COPY gradle ./gradle
-COPY domain ./domain
+COPY common ./common
 COPY app ./app
 
 RUN chmod +x ./gradlew && ./gradlew clean :app:bootJar -x test --no-daemon

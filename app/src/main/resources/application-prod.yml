@@ -15,23 +15,32 @@ spring:
       hibernate:
         format_sql: false
         show_sql: false
+        type:
+          preferred_uuid_jdbc_type: CHAR
 
-security:
-  jwt:
-    enabled: true
-    issuer: ${AUTH_JWT_ISSUER:auth-service}
-    secret: ${AUTH_JWT_SECRET:abcdefghijklmnopqrstuvwxyz12345678901234567890}
-    audience: ${AUTH_JWT_AUDIENCE:user-service}
-    internal-scope: ${AUTH_INTERNAL_SCOPE:internal}
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      service: ${spring.application.name:user-service}
+      env: ${SPRING_PROFILES_ACTIVE:local}
 
 logging:
   level:
-    com.api.config.logging.RequestAccessLogFilter: INFO
+    com.api.config.logging.com.userservice.app.config.logging.RequestAccessLogFilter: INFO
     org.hibernate.SQL: ${LOGGING_LEVEL_ORG_HIBERNATE_SQL:WARN}
     org.hibernate.orm.jdbc.bind: ${LOGGING_LEVEL_ORG_HIBERNATE_BIND:WARN}

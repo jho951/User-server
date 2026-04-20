@@ -1,0 +1,447 @@
+openapi: 3.0.3
+info:
+  title: User Service Contract
+  version: 1.0.0
+  description: Gateway 연동 기준 User Service 핵심 계약이다.
+servers:
+  - url: http://user-service:8082
+tags:
+  - name: PublicUser
+  - name: InternalUser
+paths:
+  /users/signup:
+    post:
+      tags: [PublicUser]
+      summary: 공개 회원가입
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignupRequest'
+            example:
+              email: user@example.com
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreateResponseEnvelope'
+              example:
+                httpStatus: 201
+                success: true
+                message: 회원가입 성공
+                code: 3001
+                data:
+                  user:
+                    id: 550e8400-e29b-41d4-a716-446655440000
+                    email: user@example.com
+                    role: USER
+                    status: ACTIVE
+                    createdAt: '2026-04-01T12:00:00'
+                    updatedAt: '2026-04-01T12:00:00'
+                    userSocialList: []
+        default:
+          $ref: '#/components/responses/UserError'
+  /users/me:
+    get:
+      tags: [PublicUser]
+      summary: 내 정보 조회
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+              example:
+                httpStatus: 200
+                success: true
+                message: 내 사용자 정보 조회 성공
+                code: 3000
+                data:
+                  id: 550e8400-e29b-41d4-a716-446655440000
+                  email: user@example.com
+                  role: USER
+                  status: ACTIVE
+                  createdAt: '2026-04-01T12:00:00'
+                  updatedAt: '2026-04-01T12:00:00'
+                  userSocialList: []
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users:
+    post:
+      tags: [InternalUser]
+      summary: 내부 사용자 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+            example:
+              email: user@example.com
+              role: USER
+              status: ACTIVE
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+              example:
+                httpStatus: 201
+                success: true
+                message: 사용자 생성 성공
+                code: 3002
+                data:
+                  id: 550e8400-e29b-41d4-a716-446655440000
+                  email: user@example.com
+                  role: USER
+                  status: ACTIVE
+                  createdAt: '2026-04-01T12:00:00'
+                  updatedAt: '2026-04-01T12:00:00'
+                  userSocialList: []
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/social:
+    post:
+      tags: [InternalUser]
+      summary: 소셜 계정 생성
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSocialCreateRequest'
+            example:
+              userId: 550e8400-e29b-41d4-a716-446655440000
+              socialType: GITHUB
+              providerId: github-user-123
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSocialResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/ensure-social:
+    post:
+      tags: [InternalUser]
+      summary: 소셜 사용자 보장
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEnsureSocialRequest'
+            example:
+              email: user@example.com
+              socialType: GITHUB
+              providerId: github-user-123
+              role: USER
+              status: ACTIVE
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/find-or-create-and-link-social:
+    post:
+      tags: [InternalUser]
+      summary: 소셜 사용자 조회/생성/연결
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEnsureSocialRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/{userId}/status:
+    put:
+      tags: [InternalUser]
+      summary: 사용자 상태 변경
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserStatusUpdateRequest'
+            example:
+              status: ACTIVE
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/{userId}:
+    get:
+      tags: [InternalUser]
+      summary: 사용자 ID로 조회
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/by-email:
+    get:
+      tags: [InternalUser]
+      summary: 이메일로 조회
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+  /internal/users/by-social:
+    get:
+      tags: [InternalUser]
+      summary: 소셜 제공자 정보로 조회
+      parameters:
+        - in: query
+          name: socialType
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: providerId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponseEnvelope'
+        default:
+          $ref: '#/components/responses/UserError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UserError:
+      description: User service error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserErrorResponseEnvelope'
+          example:
+            httpStatus: 400
+            success: false
+            message: 잘못된 요청입니다.
+            code: 7000
+            data: null
+  schemas:
+    UserSignupRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    UserCreateRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        status:
+          type: string
+    UserSocialCreateRequest:
+      type: object
+      required: [userId, socialType, providerId]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        socialType:
+          type: string
+        providerId:
+          type: string
+    UserEnsureSocialRequest:
+      type: object
+      required: [email, socialType, providerId]
+      properties:
+        email:
+          type: string
+          format: email
+        socialType:
+          type: string
+          description: provider와 동의어 alias 허용
+        providerId:
+          type: string
+          description: providerUserId와 동의어 alias 허용
+        role:
+          type: string
+        status:
+          type: string
+    UserStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+    UserSocialResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        provider:
+          type: string
+        providerUserId:
+          type: string
+        email:
+          type: string
+          format: email
+        socialType:
+          type: string
+        providerId:
+          type: string
+    UserDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userSocialList:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSocialResponse'
+    UserCreateResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserDetailResponse'
+    UserDetailResponseEnvelope:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/UserDetailResponse'
+    UserCreateResponseEnvelope:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/UserCreateResponse'
+    UserSocialResponseEnvelope:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: integer
+        data:
+          $ref: '#/components/schemas/UserSocialResponse'
+    UserErrorResponseEnvelope:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: integer
+        data:
+          nullable: true
