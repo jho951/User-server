@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,7 +39,11 @@ class UserSecurityIntegrationTest {
         mockMvc.perform(post("/users/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"user@example.com\"}"))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.httpStatus").value(201))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.code").value(3001))
+                .andExpect(jsonPath("$.message").value("회원가입 성공"));
     }
 
     @Test
@@ -50,7 +55,11 @@ class UserSecurityIntegrationTest {
                         .with(jwt().jwt(jwt -> jwt
                                 .subject("123e4567-e89b-12d3-a456-426614174000")
                                 .claim("status", "A"))))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.httpStatus").value(200))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.code").value(3000))
+                .andExpect(jsonPath("$.message").value("내 사용자 정보 조회 성공"));
     }
 
     @Test
@@ -74,7 +83,11 @@ class UserSecurityIntegrationTest {
                                 .authorities(new SimpleGrantedAuthority("SCOPE_internal")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"internal-user@example.com\"}"))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.httpStatus").value(201))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.code").value(3002))
+                .andExpect(jsonPath("$.message").value("사용자 생성 성공"));
         verify(userService).create(any());
     }
 

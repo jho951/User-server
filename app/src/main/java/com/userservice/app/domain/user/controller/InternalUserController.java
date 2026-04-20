@@ -56,10 +56,7 @@ public class InternalUserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> createUser(
 		@Valid @RequestBody UserRequest.UserCreateRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_CREATE_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.create(request)));
+		return GlobalResponse.success(SuccessCode.USER_CREATE_SUCCESS, userService.create(request));
 	}
 
 	/**
@@ -72,10 +69,7 @@ public class InternalUserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserSocialResponse>> createSocial(
 		@Valid @RequestBody UserRequest.UserSocialCreateRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_SOCIAL_CREATE_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.createSocial(request)));
+		return GlobalResponse.success(SuccessCode.USER_SOCIAL_CREATE_SUCCESS, userService.createSocial(request));
 	}
 
 	/**
@@ -88,10 +82,7 @@ public class InternalUserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> ensureSocial(
 		@Valid @RequestBody UserRequest.UserEnsureSocialRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_ENSURE_SOCIAL_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.ensureSocial(request)));
+		return GlobalResponse.success(SuccessCode.USER_ENSURE_SOCIAL_SUCCESS, userService.ensureSocial(request));
 	}
 
 	/**
@@ -104,10 +95,10 @@ public class InternalUserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> findOrCreateAndLinkSocial(
 		@Valid @RequestBody UserRequest.UserEnsureSocialRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_FIND_OR_CREATE_AND_LINK_SOCIAL_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.findOrCreateAndLinkSocial(request)));
+		return GlobalResponse.success(
+			SuccessCode.USER_FIND_OR_CREATE_AND_LINK_SOCIAL_SUCCESS,
+			userService.findOrCreateAndLinkSocial(request)
+		);
 	}
 
 	/**
@@ -122,10 +113,7 @@ public class InternalUserController {
 		@PathVariable UUID userId,
 		@Valid @RequestBody UserRequest.UserStatusUpdateRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_STATUS_UPDATE_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.updateStatus(userId, request)));
+		return GlobalResponse.success(SuccessCode.USER_STATUS_UPDATE_SUCCESS, userService.updateStatus(userId, request));
 	}
 
 	/**
@@ -136,10 +124,7 @@ public class InternalUserController {
 	 */
 	@GetMapping("/{userId}")
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> getUser(@PathVariable UUID userId) {
-		SuccessCode successCode = SuccessCode.USER_GET_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.get(userId)));
+		return GlobalResponse.success(SuccessCode.USER_GET_SUCCESS, userService.get(userId));
 	}
 
 	/**
@@ -150,10 +135,7 @@ public class InternalUserController {
 	 */
 	@GetMapping("/by-email")
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> getUserByEmail(@RequestParam String email) {
-		SuccessCode successCode = SuccessCode.USER_GET_BY_EMAIL_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.getByEmail(email)));
+		return GlobalResponse.success(SuccessCode.USER_GET_BY_EMAIL_SUCCESS, userService.getByEmail(email));
 	}
 
 	/**
@@ -168,9 +150,9 @@ public class InternalUserController {
 		@RequestParam UserSocialType socialType,
 		@RequestParam String providerId
 	) {
-		SuccessCode successCode = SuccessCode.USER_GET_BY_SOCIAL_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.getBySocial(socialType, providerId)));
+		return GlobalResponse.success(
+			SuccessCode.USER_GET_BY_SOCIAL_SUCCESS,
+			userService.getBySocial(socialType, providerId)
+		);
 	}
 }

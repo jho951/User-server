@@ -1,7 +1,8 @@
 package com.userservice.app.common.base.dto;
 
-import com.userservice.app.common.base.constant.SuccessCode;
 import com.userservice.app.common.base.constant.ErrorCode;
+import com.userservice.app.common.base.constant.SuccessCode;
+import org.springframework.http.ResponseEntity;
 
 /**
  * API 응답 바디를 공통 형식으로 감싸는 래퍼입니다.
@@ -24,7 +25,7 @@ public final class GlobalResponse<T> {
      * @param code 비즈니스 코드
      * @param data 실제 응답 데이터
      */
-    public GlobalResponse(int httpStatus, boolean success, String message, int code, T data) {
+    private GlobalResponse(int httpStatus, boolean success, String message, int code, T data) {
         if (message == null) {
             throw new IllegalArgumentException("메시지는 null일 수 없습니다.");
         }
@@ -57,12 +58,17 @@ public final class GlobalResponse<T> {
     }
 
     /**
-     * 데이터 없는 기본 성공 응답을 생성합니다.
+     * 성공 메타정보의 HTTP 상태와 응답 본문을 함께 적용합니다.
      *
-     * @return 기본 성공 응답
+     * @param successCode 성공 메타정보
+     * @param data 실제 응답 데이터
+     * @param <T> 응답 데이터 타입
+     * @return 성공 HTTP 응답
      */
-    public static GlobalResponse<Void> ok() {
-        return ok(SuccessCode.USER_GET_SUCCESS, null);
+    public static <T> ResponseEntity<GlobalResponse<T>> success(SuccessCode successCode, T data) {
+        return ResponseEntity
+                .status(successCode.getHttpStatus())
+                .body(ok(successCode, data));
     }
 
     /**

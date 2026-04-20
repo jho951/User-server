@@ -49,10 +49,7 @@ public class UserController {
 	@GetMapping("/me")
 	public ResponseEntity<GlobalResponse<UserResponse.UserDetailResponse>> me(Authentication authentication) {
 		UUID userId = resolveUserId(authentication);
-		SuccessCode successCode = SuccessCode.USER_ME_GET_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.get(userId)));
+		return GlobalResponse.success(SuccessCode.USER_ME_GET_SUCCESS, userService.get(userId));
 	}
 
 	private UUID resolveUserId(Authentication authentication) {
@@ -74,9 +71,6 @@ public class UserController {
 	public ResponseEntity<GlobalResponse<UserResponse.UserCreateResponse>> signup(
 		@Valid @RequestBody UserRequest.UserSignupRequest request
 	) {
-		SuccessCode successCode = SuccessCode.USER_SIGNUP_SUCCESS;
-		return ResponseEntity
-			.status(successCode.getHttpStatus())
-			.body(GlobalResponse.ok(successCode, userService.signup(request)));
+		return GlobalResponse.success(SuccessCode.USER_SIGNUP_SUCCESS, userService.signup(request));
 	}
 }
