@@ -40,8 +40,9 @@ paths:
                     email: user@example.com
                     role: USER
                     status: ACTIVE
+                    version: 0
                     createdAt: '2026-04-01T12:00:00'
-                    updatedAt: '2026-04-01T12:00:00'
+                    modifiedAt: '2026-04-01T12:00:00'
                     userSocialList: []
         default:
           $ref: '#/components/responses/UserError'
@@ -68,8 +69,9 @@ paths:
                   email: user@example.com
                   role: USER
                   status: ACTIVE
+                  version: 0
                   createdAt: '2026-04-01T12:00:00'
-                  updatedAt: '2026-04-01T12:00:00'
+                  modifiedAt: '2026-04-01T12:00:00'
                   userSocialList: []
         default:
           $ref: '#/components/responses/UserError'
@@ -77,6 +79,8 @@ paths:
     post:
       tags: [InternalUser]
       summary: 내부 사용자 생성
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -104,8 +108,9 @@ paths:
                   email: user@example.com
                   role: USER
                   status: ACTIVE
+                  version: 0
                   createdAt: '2026-04-01T12:00:00'
-                  updatedAt: '2026-04-01T12:00:00'
+                  modifiedAt: '2026-04-01T12:00:00'
                   userSocialList: []
         default:
           $ref: '#/components/responses/UserError'
@@ -186,6 +191,8 @@ paths:
     put:
       tags: [InternalUser]
       summary: 사용자 상태 변경
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -214,6 +221,8 @@ paths:
     get:
       tags: [InternalUser]
       summary: 사용자 ID로 조회
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -234,6 +243,8 @@ paths:
     get:
       tags: [InternalUser]
       summary: 이메일로 조회
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: email
@@ -254,12 +265,14 @@ paths:
     get:
       tags: [InternalUser]
       summary: 소셜 제공자 정보로 조회
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: socialType
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/UserSocialType'
         - in: query
           name: providerId
           required: true
@@ -341,9 +354,12 @@ components:
           type: string
           format: uuid
         socialType:
-          $ref: '#/components/schemas/UserSocialType'
+          allOf:
+            - $ref: '#/components/schemas/UserSocialType'
+          description: provider와 동의어 alias 허용
         providerId:
           type: string
+          description: providerUserId와 동의어 alias 허용
     UserEnsureSocialRequest:
       type: object
       required: [email, socialType, providerId]
@@ -374,6 +390,15 @@ components:
         id:
           type: string
           format: uuid
+        version:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
         userId:
           type: string
           format: uuid
@@ -394,6 +419,9 @@ components:
         id:
           type: string
           format: uuid
+        version:
+          type: integer
+          format: int64
         email:
           type: string
           format: email
@@ -404,7 +432,7 @@ components:
         createdAt:
           type: string
           format: date-time
-        updatedAt:
+        modifiedAt:
           type: string
           format: date-time
         userSocialList:
