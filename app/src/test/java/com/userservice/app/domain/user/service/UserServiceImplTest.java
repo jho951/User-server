@@ -3,8 +3,8 @@ package com.userservice.app.domain.user.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.userservice.app.common.base.constant.ErrorCode;
-import com.userservice.app.common.base.exception.BusinessException;
+import com.userservice.common.base.constant.ErrorCode;
+import com.userservice.common.base.exception.BusinessException;
 import com.userservice.app.domain.audit.UserAuditLogService;
 import com.userservice.app.domain.user.constant.UserRole;
 import com.userservice.app.domain.user.constant.UserStatus;

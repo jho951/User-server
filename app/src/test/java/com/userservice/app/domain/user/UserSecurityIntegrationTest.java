@@ -1,8 +1,8 @@
 package com.userservice.app.domain.user;
 
 import com.userservice.app.TestInfrastructureConfig;
-import com.userservice.app.common.base.constant.ErrorCode;
-import com.userservice.app.common.base.exception.BusinessException;
+import com.userservice.common.base.constant.ErrorCode;
+import com.userservice.common.base.exception.BusinessException;
 import com.userservice.app.domain.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

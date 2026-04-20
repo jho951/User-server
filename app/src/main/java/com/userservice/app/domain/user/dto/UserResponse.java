@@ -3,7 +3,7 @@ package com.userservice.app.domain.user.dto;
 import java.util.List;
 import java.util.UUID;
 
-import com.userservice.app.common.base.dto.BaseResponse;
+import com.userservice.common.base.dto.BaseResponse;
 import com.userservice.app.domain.user.constant.UserSocialType;
 import com.userservice.app.domain.user.constant.UserStatus;
 import com.userservice.app.domain.user.entity.User;

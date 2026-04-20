@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.userservice.app.common.base.constant.SuccessCode;
-import com.userservice.app.common.base.dto.GlobalResponse;
+import com.userservice.common.base.constant.SuccessCode;
+import com.userservice.common.base.dto.GlobalResponse;
 import com.userservice.app.domain.user.dto.UserRequest;
 import com.userservice.app.domain.user.dto.UserResponse;
 import com.userservice.app.domain.user.service.UserService;

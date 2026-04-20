@@ -10,8 +10,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.userservice.app.common.logging.LoggingHeaders;
-import com.userservice.app.common.logging.LoggingMdcKeys;
+import com.userservice.common.logging.LoggingHeaders;
+import com.userservice.common.logging.LoggingMdcKeys;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

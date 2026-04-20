@@ -7,7 +7,7 @@ import com.userservice.app.domain.user.constant.UserStatus;
 import com.userservice.app.domain.user.converter.UserStatusConverter;
 
 import com.userservice.app.domain.user.constant.UserRole;
-import com.userservice.app.common.base.entity.BaseEntity;
+import com.userservice.common.base.entity.BaseEntity;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Table;

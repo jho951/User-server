@@ -24,8 +24,8 @@ import com.userservice.app.domain.user.observability.SocialLinkMetrics;
 import com.userservice.app.domain.user.repository.UserRepository;
 import com.userservice.app.domain.user.repository.UserSocialRepository;
 import com.userservice.app.domain.user.constant.UserRole;
-import com.userservice.app.common.base.exception.BusinessException;
-import com.userservice.app.common.base.constant.ErrorCode;
+import com.userservice.common.base.exception.BusinessException;
+import com.userservice.common.base.constant.ErrorCode;
 
 /** 사용자 유즈케이스 구현체입니다. */
 @Service

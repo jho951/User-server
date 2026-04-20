@@ -2,7 +2,7 @@ package com.userservice.app.domain.user.entity;
 
 import com.userservice.app.domain.user.constant.UserSocialType;
 import com.userservice.app.domain.user.converter.UserSocialTypeConverter;
-import com.userservice.app.common.base.entity.BaseEntity;
+import com.userservice.common.base.entity.BaseEntity;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
