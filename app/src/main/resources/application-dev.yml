@@ -26,13 +26,12 @@ spring:
 user-service:
   base-url: ${USER_SERVICE_BASE_URL:}
 
-security:
-  jwt:
-    enabled: true
-    issuer: ${USER_SERVICE_INTERNAL_JWT_ISSUER:${AUTH_JWT_ISSUER:}}
-    secret: ${USER_SERVICE_INTERNAL_JWT_SECRET:${AUTH_JWT_SECRET:}}
-    audience: ${USER_SERVICE_INTERNAL_JWT_AUDIENCE:${AUTH_JWT_AUDIENCE:}}
-    internal-scope: ${USER_SERVICE_INTERNAL_JWT_SCOPE:${AUTH_INTERNAL_SCOPE:internal}}
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: alpha
+    doc-expansion: none
 
 management:
   endpoints:
@@ -51,6 +50,6 @@ management:
 
 logging:
   level:
-    com.api.config.logging.RequestAccessLogFilter: INFO
+    com.api.config.logging.com.userservice.app.config.logging.RequestAccessLogFilter: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE

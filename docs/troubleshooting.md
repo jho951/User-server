@@ -1,103 +1,251 @@
-# User-server Troubleshooting
+# User 문제 해결
 
-## 1. `/users/me` returns 401
-Symptoms:
-- The endpoint fails before controller logic.
+## `/users/me`가 401을 반환함
 
-Likely causes:
-- Missing bearer token or gateway principal.
-- JWT issuer or audience does not match the configured values.
-- `sub` claim is missing.
+증상:
 
-Checks:
-- Confirm `USER_SERVICE_INTERNAL_JWT_ISSUER`, `USER_SERVICE_INTERNAL_JWT_AUDIENCE`, and `USER_SERVICE_INTERNAL_JWT_SECRET`.
-- Confirm the gateway forwards `Authorization` or `X-User-Id` and `X-User-Status`.
+- 컨트롤러 로직에 도달하기 전에 인증에서 실패합니다.
 
-Fix:
-- Reissue the JWT with the configured issuer, audience, and subject UUID.
+가능한 원인:
 
-## 2. `/users/me` returns 403
-Symptoms:
-- Authentication succeeds, but access is still denied.
+- Bearer token이 없습니다.
+- gateway 사용자 컨텍스트 헤더가 없습니다.
+- JWT issuer, audience, secret이 설정과 다릅니다.
+- `sub` claim이 비어 있습니다.
 
-Likely causes:
-- `status` is not `A`.
-- The gateway forwarded a stale `X-User-Status`.
+확인:
 
-Checks:
-- Inspect the JWT `status` claim or gateway principal status.
-- Verify the user row has status `A`.
+- `USER_SERVICE_INTERNAL_JWT_ISSUER`
+- `USER_SERVICE_INTERNAL_JWT_AUDIENCE`
+- `USER_SERVICE_INTERNAL_JWT_SECRET`
+- gateway가 `Authorization` 또는 `X-User-Id`, `X-User-Status`를 전달하는지 확인합니다.
 
-Fix:
-- Update the user status back to active if the account should be usable.
+조치:
 
-## 3. Internal API returns 403
-Symptoms:
-- `/internal/users/**` is rejected even with a bearer token.
+- 설정값과 일치하는 토큰을 다시 발급합니다.
+- gateway route의 인증 헤더 전달 설정을 확인합니다.
 
-Likely causes:
-- Missing `internal` scope.
-- Wrong issuer, audience, or secret.
+## `/users/me`가 403을 반환함
 
-Checks:
-- Verify the token carries `scope=internal` or `scp=[internal]`.
-- Verify `iss` and `aud` match the service configuration.
+증상:
 
-Fix:
-- Issue a new internal JWT from `auth-service`.
+- 인증은 성공했지만 접근이 거부됩니다.
 
-## 4. Signup returns 400
-Symptoms:
-- `POST /users/signup` fails immediately.
+가능한 원인:
 
-Likely causes:
-- Invalid email format.
-- Empty email.
-- Duplicate email.
+- 사용자 상태가 `A`가 아닙니다.
+- gateway가 오래된 `X-User-Status`를 전달했습니다.
+- JWT의 `status` claim이 active 상태가 아닙니다.
 
-Checks:
-- Confirm the payload contains a valid email.
-- Check whether the email already exists in `users`.
+확인:
 
-Fix:
-- Use a new email or clean the duplicate record in the test environment.
+- `users` 테이블의 사용자 상태를 확인합니다.
+- gateway principal 또는 JWT claim의 status 값을 확인합니다.
 
-## 5. Social link retries create conflicts
-Symptoms:
-- `find-or-create-and-link-social` is called repeatedly for the same provider key.
+조치:
 
-Likely causes:
-- Another request already created the `(social_type, provider_id)` row.
+- 사용할 수 있는 계정이면 상태를 active로 변경합니다.
+- gateway 사용자 컨텍스트 캐시가 있다면 갱신합니다.
 
-Checks:
-- Query `user_social_accounts` for the provider pair.
-- Compare the returned `userId` with the expected owner.
+## 내부 API가 403을 반환함
 
-Fix:
-- Treat the request as idempotent and reuse the existing mapping.
+증상:
 
-## 6. Social link is attached to the wrong user
-Symptoms:
-- The same social provider key points to a different user than expected.
+- `/internal/users/**` 요청이 Bearer token을 포함해도 거부됩니다.
 
-Likely causes:
-- Provider key collision.
-- Existing mapping was created earlier and reused.
+가능한 원인:
 
-Checks:
-- Inspect `providerId`, `socialType`, and the unique constraint on `user_social_accounts`.
+- `internal` scope가 없습니다.
+- issuer, audience, secret이 다릅니다.
+- auth-service가 user-service용 내부 토큰을 발급하지 않았습니다.
 
-Fix:
-- Resolve the ownership conflict at the source identity provider, then remap if needed.
+확인:
 
-## 7. Runtime and repo naming looks inconsistent
-Symptoms:
-- The docs mention both `User-server` and `user-service`.
+- `scope=internal` 또는 `scp`에 `internal`이 있는지 확인합니다.
+- `iss`와 `aud`가 user-service 설정과 일치하는지 확인합니다.
 
-Meaning:
-- `User-server` is the implementation repository name.
-- `user-service` is the runtime service name used by Docker, gateway routing, and logs.
+조치:
 
-Fix:
-- Keep `User-server` for repository and contract ownership.
-- Keep `user-service` for runtime DNS and container identity.
+- auth-service에서 내부 호출용 JWT를 다시 발급합니다.
+- 서비스 간 공유 secret 값을 맞춥니다.
+
+## 가입 API가 400을 반환함
+
+증상:
+
+- `POST /users/signup`이 즉시 실패합니다.
+
+가능한 원인:
+
+- 이메일 형식이 잘못됐습니다.
+- 이메일이 비어 있습니다.
+- 이미 존재하는 이메일입니다.
+
+확인:
+
+- 요청 body의 `email` 값을 확인합니다.
+- `users.email` 중복 여부를 확인합니다.
+
+조치:
+
+- 올바른 이메일로 다시 요청합니다.
+- 테스트 환경이면 중복 데이터를 정리합니다.
+
+## 소셜 링크 요청이 충돌함
+
+증상:
+
+- 같은 provider key 요청에서 충돌이 발생합니다.
+- 기대한 사용자와 다른 사용자 id가 반환됩니다.
+
+가능한 원인:
+
+- `(social_type, provider_id)` 조합이 이미 다른 사용자에게 연결되어 있습니다.
+- provider key 생성 규칙이 서비스 간 다릅니다.
+- 이전 요청이 먼저 성공했고 재시도 요청이 뒤늦게 들어왔습니다.
+
+확인:
+
+- `user_social_accounts`에서 `social_type`, `provider_id`를 조회합니다.
+- 반환된 `user_id`가 기대 소유자와 같은지 확인합니다.
+- auth-service가 전달하는 provider key와 user-service 요청 body가 같은 기준인지 확인합니다.
+
+조치:
+
+- 같은 소유자면 멱등 성공으로 처리합니다.
+- 다른 소유자면 소스 IdP 기준으로 소유권을 확인한 뒤 수동 정정합니다.
+
+## 수정 요청이 409를 반환함
+
+증상:
+
+- 사용자 상태 변경 같은 수정 요청이 `409 Conflict`로 실패합니다.
+
+가능한 원인:
+
+- 같은 사용자 또는 소셜 계정이 다른 요청에서 먼저 수정됐습니다.
+- 오래된 응답의 `version` 기준으로 후속 수정이 진행됐습니다.
+
+확인:
+
+- 대상 row의 현재 `version`, `modified_at` 값을 다시 조회합니다.
+- 같은 대상에 대한 중복 요청 또는 재시도 흐름을 확인합니다.
+
+조치:
+
+- 최신 데이터를 다시 조회한 뒤 수정 요청을 재시도합니다.
+- 반복 발생하면 호출 측에서 같은 대상에 대한 병렬 수정을 직렬화합니다.
+
+## DB 연결 실패
+
+증상:
+
+- 애플리케이션 시작 실패
+- health check 실패
+- `Communications link failure` 또는 인증 실패 로그 발생
+
+가능한 원인:
+
+- MySQL 컨테이너가 healthy 상태가 아닙니다.
+- `SPRING_DATASOURCE_URL`이 잘못됐습니다.
+- DB 사용자명 또는 비밀번호가 다릅니다.
+- Docker network가 맞지 않습니다.
+
+확인:
+
+```bash
+./scripts/run.docker.sh ps dev
+./scripts/run.docker.sh logs dev mysql
+```
+
+조치:
+
+- MySQL 컨테이너 healthcheck 통과 여부를 확인합니다.
+- dev 환경에서는 `jdbc:mysql://mysql:3306/user_service...` 형식을 사용합니다.
+- 로컬 직접 실행에서는 `localhost:3306`을 사용합니다.
+
+## CI에서 GitHub Packages 의존성 해석 실패
+
+증상:
+
+- Gradle build가 `401 Unauthorized` 또는 package not found로 실패합니다.
+
+가능한 원인:
+
+- 저장소 secret `GH_TOKEN`이 없습니다.
+- 토큰에 `read:packages` 권한이 없습니다.
+- package 접근 권한이 현재 저장소에 열려 있지 않습니다.
+
+확인:
+
+- GitHub Actions secret에 `GH_TOKEN`이 등록되어 있는지 확인합니다.
+- [settings.gradle](../settings.gradle)이 `GH_TOKEN`을 읽는지 확인합니다.
+- [.github/workflows/ci.yml](../.github/workflows/ci.yml)이 `GH_TOKEN`을 주입하는지 확인합니다.
+
+조치:
+
+- `read:packages` 권한이 있는 PAT를 `GH_TOKEN`으로 등록합니다.
+- package 소유 저장소에서 해당 repo 접근 권한을 허용합니다.
+
+## Docker build가 private package를 받지 못함
+
+증상:
+
+- `./scripts/run.docker.sh up dev` 또는 `build`가 Gradle dependency resolution 단계에서 실패합니다.
+- Dockerfile builder stage에서 `401 Unauthorized`가 발생합니다.
+
+가능한 원인:
+
+- `GH_TOKEN`이 Docker build 환경에 전달되지 않았습니다.
+- 토큰에 `read:packages` 권한이 없습니다.
+- `GITHUB_ACTOR`가 package 접근 권한이 있는 사용자와 다릅니다.
+
+확인:
+
+```bash
+echo "$GITHUB_ACTOR"
+test -n "$GH_TOKEN"
+./scripts/run.docker.sh build dev
+```
+
+조치:
+
+- `GITHUB_ACTOR`, `GH_TOKEN`을 shell에 export한 뒤 다시 빌드합니다.
+- 토큰 권한과 package 접근 허용 설정을 확인합니다.
+
+## Docker에서 user-service가 gateway에서 보이지 않음
+
+증상:
+
+- gateway가 `http://user-service:8082`로 user-service를 호출하지 못합니다.
+- user-service 컨테이너는 떠 있지만 gateway route가 502 또는 connection error를 반환합니다.
+
+가능한 원인:
+
+- gateway와 user-service가 같은 external shared network에 붙어 있지 않습니다.
+- `SERVICE_SHARED_NETWORK`, `BACKEND_SHARED_NETWORK`, `MSA_SHARED_NETWORK` 값이 서비스별로 다릅니다.
+- shared network가 생성되지 않았습니다.
+
+확인:
+
+```bash
+docker network inspect service-backbone-shared
+./scripts/run.docker.sh ps dev
+```
+
+조치:
+
+- 모든 서비스가 같은 shared network 이름을 사용하도록 맞춥니다.
+- 필요한 경우 `./scripts/run.docker.sh up dev`로 네트워크 생성을 유도합니다.
+
+## `User-server`와 `user-service` 이름이 혼동됨
+
+정리:
+
+- `User-server`: GitHub 저장소 이름
+- `user-service`: Docker service, gateway upstream, 로그와 metric의 런타임 서비스명
+
+조치:
+
+- 코드/문서에서 저장소 맥락은 `User-server`를 씁니다.
+- 런타임, DNS, gateway, 로그 맥락은 `user-service`를 씁니다.

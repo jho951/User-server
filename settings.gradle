@@ -1,17 +1,18 @@
 rootProject.name = 'User-server'
-include 'domain'
+include 'common'
 include 'app'
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        ['platform-governance'].each { repoName ->
+        ['platform-governance', 'platform-security', 'platform-integrations'].each { repoName ->
             maven {
                 url = uri("https://maven.pkg.github.com/jho951/${repoName}")
                 def githubPackagesUsername = providers.environmentVariable('GITHUB_ACTOR')
                     .orElse(providers.gradleProperty('githubPackagesUsername'))
                     .orElse(providers.gradleProperty('githubUsername'))
-                def githubPackagesToken = providers.environmentVariable('GITHUB_TOKEN')
+                    .orElse('jho951')
+                def githubPackagesToken = providers.environmentVariable('GH_TOKEN')
                     .orElse(providers.gradleProperty('githubPackagesToken'))
                     .orElse(providers.gradleProperty('githubToken'))
                 if (githubPackagesUsername.present && githubPackagesToken.present) {

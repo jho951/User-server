@@ -34,10 +34,16 @@ app_env = {
   USER_SERVICE_INTERNAL_JWT_ISSUER   = "auth-service"
   USER_SERVICE_INTERNAL_JWT_AUDIENCE = "user-service"
   USER_SERVICE_INTERNAL_JWT_SCOPE    = "internal"
-  AUDITLOG_ENABLED                   = "true"
-  AUDITLOG_SERVICE_NAME              = "user-service"
-  AUDITLOG_ENV                       = "prod"
-  AUDITLOG_FILE_PATH                 = "/var/log/user-service/audit.log"
+  PLATFORM_GOVERNANCE_ENABLED       = "true"
+  PLATFORM_GOVERNANCE_AUDIT_ENABLED = "true"
+  PLATFORM_GOVERNANCE_AUDIT_SERVICE_NAME = "user-service"
+  PLATFORM_GOVERNANCE_AUDIT_ENVIRONMENT  = "prod"
+  PLATFORM_SECURITY_ENABLED              = "true"
+  PLATFORM_SECURITY_SERVICE_ROLE_PRESET  = "API_SERVER"
+  PLATFORM_SECURITY_AUTH_ENABLED         = "false"
+  PLATFORM_SECURITY_INTERNAL_TOKEN_ENABLED = "false"
+  PLATFORM_SECURITY_IP_GUARD_ENABLED       = "false"
+  PLATFORM_SECURITY_RATE_LIMIT_ENABLED     = "false"
 }
 
 app_secret_env = {

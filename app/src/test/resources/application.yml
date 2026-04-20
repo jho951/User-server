@@ -20,13 +20,36 @@ features:
   internal-user-api:
     enabled: true
 
-security:
-  jwt:
-    enabled: true
-    issuer: auth-service
-    secret: abcdefghijklmnopqrstuvwxyz12345678901234567890
-    audience: user-service
-    internal-scope: internal
-
-auditlog:
-  enabled: false
+platform:
+  governance:
+    audit:
+      enabled: false
+  security:
+    boundary:
+      public-paths:
+        - /actuator/**
+        - /v3/api-docs/**
+        - /swagger-ui/**
+        - /swagger-ui.html
+        - /favicon.ico
+        - /error
+        - /users/signup
+      protected-paths:
+        - /users/**
+      admin-paths: []
+      internal-paths:
+        - /internal/**
+    auth:
+      enabled: true
+      internal-token-enabled: true
+      jwt-secret: abcdefghijklmnopqrstuvwxyz12345678901234567890
+      jwt-issuer: auth-service
+      jwt-audience: user-service
+      internal-required-authorities:
+        - SCOPE_internal
+      gateway-header:
+        enabled: true
+    ip-guard:
+      enabled: false
+    rate-limit:
+      enabled: false
