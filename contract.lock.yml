@@ -1,7 +1,7 @@
 contract:
   repo: https://github.com/jho951/service-contract
   ref: main
-  commit: 12dc214ed7e0c9c2290add6972cd35be13634743
+  commit: 21d81ce61dba9bb7261ef468b4cc298937e7482a
 
 service:
   name: user-service
