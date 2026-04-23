@@ -142,8 +142,8 @@ docker compose -f docker/compose.yml -f docker/prod/compose.yml config
 | `MYSQL_PASSWORD` | 환경별 값 | MySQL 애플리케이션 비밀번호 |
 | `MYSQL_ROOT_PASSWORD` | 환경별 값 | MySQL root 비밀번호 |
 | `USER_SERVICE_INTERNAL_JWT_SECRET` | 환경별 값 | 내부 JWT HMAC secret |
-| `USER_SERVICE_INTERNAL_JWT_ISSUER` | `auth-service` | 내부 JWT issuer |
-| `USER_SERVICE_INTERNAL_JWT_AUDIENCE` | `user-service` | 내부 JWT audience |
+| `USER_SERVICE_INTERNAL_JWT_ISSUER` | `api-gateway` | Gateway 내부 JWT issuer |
+| `USER_SERVICE_INTERNAL_JWT_AUDIENCE` | `internal-services` | Gateway 내부 JWT audience |
 | `FEATURES_PUBLIC_USER_API_ENABLED` | `true` | 공개 사용자 API 활성화 |
 | `FEATURES_INTERNAL_USER_API_ENABLED` | `true` | 내부 사용자 API 활성화 |
 | `GITHUB_ACTOR` | `jho951` | private GitHub Packages build 인증 사용자 |

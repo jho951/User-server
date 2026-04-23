@@ -163,8 +163,8 @@ platform:
       enabled: true
       internal-token-enabled: true
       jwt-secret: ${USER_SERVICE_INTERNAL_JWT_SECRET}
-      jwt-issuer: auth-service
-      jwt-audience: user-service
+      jwt-issuer: api-gateway
+      jwt-audience: internal-services
       internal-required-authorities:
         - SCOPE_internal
       gateway-header:

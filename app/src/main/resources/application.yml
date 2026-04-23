@@ -59,9 +59,9 @@ platform:
     auth:
       enabled: ${PLATFORM_SECURITY_AUTH_ENABLED:true}
       internal-token-enabled: ${PLATFORM_SECURITY_INTERNAL_TOKEN_ENABLED:true}
-      jwt-secret: ${USER_SERVICE_INTERNAL_JWT_SECRET:${AUTH_JWT_SECRET:platform-security-dev-secret-platform-security-dev-secret}}
-      jwt-issuer: ${USER_SERVICE_INTERNAL_JWT_ISSUER:${AUTH_JWT_ISSUER:}}
-      jwt-audience: ${USER_SERVICE_INTERNAL_JWT_AUDIENCE:${AUTH_JWT_AUDIENCE:}}
+      jwt-secret: ${USER_SERVICE_INTERNAL_JWT_SECRET:${PLATFORM_SECURITY_JWT_SECRET:${AUTH_JWT_SECRET:platform-security-dev-secret-platform-security-dev-secret}}}
+      jwt-issuer: ${USER_SERVICE_INTERNAL_JWT_ISSUER:${PLATFORM_SECURITY_JWT_ISSUER:${AUTH_JWT_ISSUER:api-gateway}}}
+      jwt-audience: ${USER_SERVICE_INTERNAL_JWT_AUDIENCE:${PLATFORM_SECURITY_JWT_AUDIENCE:${AUTH_JWT_AUDIENCE:internal-services}}}
       internal-required-authorities:
         - SCOPE_${USER_SERVICE_INTERNAL_JWT_SCOPE:${AUTH_INTERNAL_SCOPE:internal}}
       gateway-header:

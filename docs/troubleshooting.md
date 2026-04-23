@@ -11,6 +11,7 @@
 - Bearer token이 없습니다.
 - gateway가 검증한 사용자 식별자가 없습니다.
 - JWT issuer, audience, secret이 설정과 다릅니다.
+- user-service가 예전 `auth-service / user-service` 계약을 기대하고, Gateway는 최신 `api-gateway / internal-services` 내부 JWT를 보내고 있을 수 있습니다.
 - `sub` claim이 비어 있습니다.
 
 확인:
@@ -18,11 +19,15 @@
 - `USER_SERVICE_INTERNAL_JWT_ISSUER`
 - `USER_SERVICE_INTERNAL_JWT_AUDIENCE`
 - `USER_SERVICE_INTERNAL_JWT_SECRET`
+- `PLATFORM_SECURITY_JWT_ISSUER`
+- `PLATFORM_SECURITY_JWT_AUDIENCE`
+- `PLATFORM_SECURITY_JWT_SECRET`
 - gateway가 `Authorization` 또는 검증된 `X-User-Id`를 전달하는지 확인합니다.
 
 조치:
 
-- 설정값과 일치하는 토큰을 다시 발급합니다.
+- 최신 구조라면 `issuer=api-gateway`, `audience=internal-services`로 맞춥니다.
+- Gateway와 user-service의 shared secret을 같은 값으로 맞춥니다.
 - gateway route의 인증 헤더 전달 설정을 확인합니다.
 
 ## `/users/me`가 403을 반환함
