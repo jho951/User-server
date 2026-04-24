@@ -8,6 +8,10 @@
 | `dev` | `docker/dev/compose.yml` | `dev` override |
 | `prod` | `docker/prod/compose.yml` | `prod` override |
 
+빌드 전용 override:
+
+- `docker/compose.build.yml`
+
 실행:
 
 ```bash
@@ -51,6 +55,7 @@ docker
 
 `docker/Dockerfile`은 dev/prod가 공유합니다.
 공통 Compose 서비스 정의는 `docker/compose.yml`에 두고, 환경별 값과 MySQL 설정은 `docker/{env}` 아래에 둡니다.
+build 설정과 secret은 `docker/compose.build.yml`에만 둡니다.
 
 ## 실행 스크립트
 
@@ -69,14 +74,15 @@ docker
 ./scripts/run.docker.sh restart dev
 ```
 
-`up`은 `--build -d`를 포함합니다.
+`up`은 dev에서 `--build -d`, prod에서 `pull && up -d`를 수행합니다.
 `down`은 `--remove-orphans`를 포함합니다.
+dev build 시에는 `docker/compose.build.yml`이 같이 적용되고, prod는 실행 전용 compose만 사용합니다.
 
 ## 서비스
 
 | 서비스 | 이미지 또는 빌드 | 네트워크 | 비고 |
 | --- | --- | --- | --- |
-| `user-service` | `docker/Dockerfile` build | `service-shared`, `user-private` | Spring Boot user-service |
+| `user-service` | dev=`docker/Dockerfile` build, prod=`USER_SERVICE_IMAGE` pull | `service-shared`, `user-private` | Spring Boot user-service |
 | `mysql` | `mysql:8.4` | `user-private` | user-service 전용 MySQL |
 
 서비스는 기본적으로 호스트 포트를 publish하지 않습니다.
@@ -148,8 +154,9 @@ docker compose -f docker/compose.yml -f docker/prod/compose.yml config
 | `FEATURES_INTERNAL_USER_API_ENABLED` | `true` | 내부 사용자 API 활성화 |
 | `GITHUB_ACTOR` | `jho951` | private GitHub Packages build 인증 사용자 |
 | `GH_TOKEN` | 없음 | private GitHub Packages build 인증 토큰 |
+| `USER_SERVICE_IMAGE` | prod 필수 | ECR에서 pull할 user-service 이미지 |
 
-`GITHUB_ACTOR`와 `GH_TOKEN`은 Docker build 단계에서 Gradle이 private GitHub Packages 의존성을 받을 때 필요합니다.
+`GITHUB_ACTOR`와 `GH_TOKEN`은 dev Docker build 단계에서 Gradle이 private GitHub Packages 의존성을 받을 때 필요합니다. prod runtime pull에는 필요하지 않습니다.
 
 ## 볼륨과 설정
 

@@ -19,12 +19,7 @@ services:
     restart: unless-stopped
 
   user-service:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-      secrets:
-        - gh_token
-        - github_actor
+    image: ${USER_SERVICE_IMAGE:-user-service:dev}
     depends_on:
       mysql:
         condition: service_healthy
@@ -44,12 +39,6 @@ services:
         aliases:
           - user-service
     restart: unless-stopped
-
-secrets:
-  gh_token:
-    environment: GH_TOKEN
-  github_actor:
-    environment: GITHUB_ACTOR
 
 networks:
   user-private:

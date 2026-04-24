@@ -12,7 +12,7 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
 
   user-service:
-    image: user-service:dev
+    image: ${USER_SERVICE_IMAGE:-user-service:dev}
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-user_service}

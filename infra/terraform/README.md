@@ -4,8 +4,8 @@
 
 생성 리소스:
 
-- public subnet, private subnet, Internet Gateway, NAT Gateway를 포함한 VPC
-- 운영 listener와 CodeDeploy test listener를 가진 public ALB
+- `create_vpc = true`일 때 생성되는 전용 VPC와 public/private subnet
+- shared VPC 모드에서 internal 로 동작하는 운영 listener와 CodeDeploy test listener
 - Blue/Green ALB target group
 - `CODE_DEPLOY` 배포 컨트롤러를 사용하는 ECS cluster, task definition, ECS service
 - CodeDeploy ECS application과 deployment group
@@ -13,6 +13,32 @@
 - CloudWatch log group
 - 민감 환경변수 저장용 Secrets Manager secret
 - `enable_mysql = true`일 때 private RDS MySQL
+
+## 권장 토폴로지
+
+운영 기본값은 shared VPC + internal ALB + Route53 private DNS 입니다.
+
+- 외부 클라이언트는 gateway public ALB로만 진입합니다.
+- `user-service`는 `user.internal.platform.local`로만 노출합니다.
+- ingress는 CIDR 공개 대신 gateway/auth caller security group으로 제한합니다.
+
+권장 변수 형태:
+
+```hcl
+create_vpc = false
+
+existing_vpc_id             = "vpc-..."
+existing_public_subnet_ids  = ["subnet-public-a", "subnet-public-c"]
+existing_private_subnet_ids = ["subnet-app-a", "subnet-app-c"]
+existing_vpc_cidr           = "10.0.0.0/16"
+
+alb_internal                          = true
+alb_ingress_source_security_group_ids = ["sg-gateway-ecs-tasks", "sg-auth-ecs-tasks"]
+private_dns_zone_id                   = "Z123456789PRIVATE"
+private_dns_name                      = "user.internal.platform.local"
+```
+
+`USER_SERVICE_BASE_URL` 같은 자기참조/상호호출 주소도 public URL이 아니라 private DNS 기준으로 둡니다.
 
 ## 인프라 적용
 
@@ -105,4 +131,5 @@ CodeDeploy는 다음 리소스를 사용해 blue target group에서 green target
 - `terraform apply`는 인프라 변경 수단입니다. release 절차는 CodeDeploy가 담당합니다.
 - `enable_mysql = true`이면 ECS task는 private subnet의 RDS에 접근하고, JDBC URL과 계정 정보가 container 환경변수로 주입됩니다.
 - ALB production listener 기본 포트는 `80`, CodeDeploy test listener 기본 포트는 `9000`입니다.
-- `app_ingress_cidrs`, `test_listener_ingress_cidrs`는 운영 노출 범위에 맞게 제한합니다.
+- shared VPC에서는 `app_ingress_cidrs`보다 `alb_ingress_source_security_group_ids`를 우선 사용합니다.
+- Route53 private DNS를 연결하면 `terraform output service_url`이 private FQDN 기준으로 반환됩니다.

@@ -238,7 +238,6 @@ docker network inspect service-backbone-shared
 ```
 
 조치:
-
 - 모든 서비스가 같은 shared network 이름을 사용하도록 맞춥니다.
 - 필요한 경우 `./scripts/run.docker.sh up dev`로 네트워크 생성을 유도합니다.
 
@@ -252,3 +251,25 @@ docker network inspect service-backbone-shared
 조치:
 
 - 새 workflow, compose, Terraform, 문서에서 별도 legacy 이름을 만들지 않습니다.
+
+## EC2 Compose와 ECS/Fargate 중 무엇을 쓸지
+
+user-service는 두 방식을 모두 검토했습니다. 구현 이력과 대표 코드 조각은 service-contract의 `shared/deployment-topologies.md`에 남깁니다.
+
+`EC2 + Docker Compose`가 맞는 경우:
+
+- 현재처럼 AWS Free Tier로 운영 비용을 최소화해야 합니다.
+- gateway, auth-service와 같은 host에서 compose network alias로 단순하게 붙이는 것이 우선입니다.
+- 무중단보다 빠른 검증과 비용 예측이 중요합니다.
+
+`ECS/Fargate + CodeDeploy`가 맞는 경우:
+
+- `/users/me` 같은 보호 API를 배포 중에도 끊으면 안 됩니다.
+- 새 task set health check 후 traffic shift가 필요합니다.
+- service-to-service 호출을 private DNS와 internal ALB 기준으로 정리하려고 합니다.
+
+현재 운영 기본값:
+
+- 현재 Free Tier 계정에서는 `단일 EC2 + docker compose`를 실제 배포 기본값으로 둡니다.
+- user-service는 gateway/auth-service와 같은 host 안에서 Docker network alias로 연결합니다.
+- 비용 제약이 해제되면 `ECS/Fargate + CodeDeploy blue/green`으로 승격합니다.

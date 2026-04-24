@@ -12,7 +12,10 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
 
   user-service:
-    image: user-service:prod
+    image: ${USER_SERVICE_IMAGE:?USER_SERVICE_IMAGE is required}
+    pull_policy: always
+    ports:
+      - "${USER_SERVICE_HOST_BIND:?USER_SERVICE_HOST_BIND is required}:${USER_SERVICE_HOST_PORT:-8082}:8082"
     expose:
       - "8082"
     environment:

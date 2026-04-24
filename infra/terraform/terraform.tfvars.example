@@ -6,11 +6,18 @@ service_name         = "user-service"
 service_runtime_name = "user-service"
 service_role         = "app-service"
 
-vpc_cidr             = "10.21.0.0/16"
-public_subnet_cidrs  = ["10.21.1.0/24", "10.21.2.0/24"]
-private_subnet_cidrs = ["10.21.11.0/24", "10.21.12.0/24"]
+create_vpc = false
 
-app_ingress_cidrs = ["203.0.113.10/32"]
+existing_vpc_id             = "vpc-0123456789abcdef0"
+existing_public_subnet_ids  = ["subnet-0publica123456789", "subnet-0publicc123456789"]
+existing_private_subnet_ids = ["subnet-0appa1234567890", "subnet-0appc1234567890"]
+existing_vpc_cidr           = "10.0.0.0/16"
+
+alb_internal                         = true
+alb_ingress_source_security_group_ids = ["sg-0gatewayecs12345678", "sg-0authecs123456789"]
+private_dns_zone_id                  = "Z0123456789PRIVATE"
+private_dns_name                     = "user.internal.platform.local"
+
 app_port      = 8082
 desired_count = 2
 task_cpu      = 512
@@ -30,7 +37,7 @@ mysql_password_env_name = "SPRING_DATASOURCE_PASSWORD"
 mysql_jdbc_query        = "?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=true"
 
 app_env = {
-  USER_SERVICE_BASE_URL              = "https://user-service.example.com"
+  USER_SERVICE_BASE_URL              = "http://user.internal.platform.local"
   USER_SERVICE_INTERNAL_JWT_ISSUER   = "auth-service"
   USER_SERVICE_INTERNAL_JWT_AUDIENCE = "user-service"
   USER_SERVICE_INTERNAL_JWT_SCOPE    = "internal"
