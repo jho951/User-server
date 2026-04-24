@@ -270,6 +270,7 @@ user-service는 두 방식을 모두 검토했습니다. 구현 이력과 대표
 
 현재 운영 기본값:
 
-- 현재 Free Tier 계정에서는 `단일 EC2 + docker compose`를 실제 배포 기본값으로 둡니다.
+- 현재는 `m7i-flex.large` 단일 EC2 + docker compose를 실제 배포 기본값으로 둡니다.
 - user-service는 gateway/auth-service와 같은 host 안에서 Docker network alias로 연결합니다.
-- 비용 제약이 해제되면 `ECS/Fargate + CodeDeploy blue/green`으로 승격합니다.
+- monitoring-service도 같은 host에 기본 포함으로 운영합니다.
+- 무중단이 필요해지면 `ECS/Fargate + CodeDeploy blue/green`으로 승격합니다.
